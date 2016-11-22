@@ -1,0 +1,82 @@
+﻿/* Maken van een voorstel */
+#budgetproposal-create {
+    padding-bottom: 15px;
+    background-color: white;
+    outline: 1px solid #b2b2b2;
+    box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.2);
+}
+
+/* Begrotingsgrafiek */
+#budgetchart img {
+    width: 100%;
+}
+
+#resting-amount {
+    padding-bottom: 1em;
+}
+
+#resting-amount .subtitle {
+    margin: 0;
+    padding-bottom: 1em;
+    text-align: center;
+    line-height: 1em;
+}
+
+#big-amount {
+    text-align: center;
+    font-size: 3em;
+    line-height: 1em;
+}
+
+/* Indienen van een voorstel */
+#budgetproposal-description {
+    padding-top: 1em;
+}
+
+#budgetproposal-description .big-subtitle {
+    margin-bottom: 0;
+}
+
+#short-description {
+    min-height: 100px;
+}
+
+#long-description {
+    min-height: 100px;
+}
+
+form label {
+    color: darkgray;
+}
+
+.btn-post {
+    width: 80%;
+    display: block;
+    margin: 0 auto;
+    padding-top: 0.8em;
+    padding-bottom: 0.8em;
+    font-size: 1.2em;
+    color: white;
+    background-color: #4D8DC9;
+}
+
+.btn-post:hover {
+    width: 80%;
+    display: block;
+    margin: 0 auto;
+    color: white;
+    background-color: #5EC9E0;
+}
+
+/* Aanpassingen in css voor mobile. */
+@media only screen and (max-width : 992px) {
+    .btn-post {
+        margin-bottom: 1em;
+        width: 100%;
+    }
+
+    .btn-post:hover {
+        margin-bottom: 1em;
+        width: 100%;
+    }
+}

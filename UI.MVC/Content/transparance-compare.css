@@ -1,0 +1,85 @@
+﻿#compare-cities {
+    padding-bottom: 15px;
+    background-color: white;
+    outline: 1px solid #b2b2b2;
+    box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.2);
+}
+
+.city-left,
+.city-right {
+    padding-top: 15px;
+}
+
+#city-name-left {
+    padding-top: 7px;
+}
+
+.choice-loaded-right {
+    padding-top: 15px;
+    padding-bottom: 15px;
+    background-color: #EFEFEF;
+    outline: 1px solid #b2b2b2;
+}
+
+.choice-loaded-left {
+    padding-top: 15px;
+    padding-bottom: 62px;
+    background-color: #EFEFEF;
+    outline: 1px solid #b2b2b2;
+}
+
+#city-1-year,
+#city-2-year {
+    border-radius: 5px;
+}
+
+.city-name {
+    margin-top: 0;
+}
+
+label {
+    font-weight: 400;
+}
+
+#budgetchart img {
+    max-height: 400px;
+    max-width: 100%;
+}
+
+#BudgetText {
+    margin: 0;
+}
+
+.city-choice {
+    padding: 15px 15px;
+    outline: 1px solid #b2b2b2;
+}
+
+.city-choice .city-label {
+    color: darkgray;
+    font-weight: 700;
+}
+
+svg {
+    margin: 0 35rem;
+}
+
+@media only screen and (max-width : 992px) {
+    svg {
+        margin: 0 20rem;
+    }
+
+    .city-name {
+        margin-top: 1rem;
+    }
+}
+
+@media only screen and (max-width : 768px) {
+    svg {
+        margin: 0 10rem;
+    }
+
+    .city-name {
+        margin-top: 1rem;
+    }
+}

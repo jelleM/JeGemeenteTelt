@@ -1,0 +1,113 @@
+﻿@model BEP.BL.Models.ManageLoginsViewModel
+@using Microsoft.Owin.Security
+
+@{
+  ViewBag.Title = "Koppel een externe loginmogelijkheid aan jouw account";
+}
+
+@section head {
+    <link rel="stylesheet" href="~/Content/manage-logins.css" />
+}
+
+<div class="container">
+    <div class="row group-shadow">
+        <div class="col-xs-12">
+            <div class="row">
+                <div class="col-xs-12">
+                    <h1>Externe logins beheren</h1>
+                    <p class="subtitle-gray">@ViewBag.Title.</p>
+                    <p class="text-success">@ViewBag.StatusMessage</p>
+                    <hr />
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12">
+                    @{
+                      var loginProviders = Context.GetOwinContext().Authentication.GetExternalAuthenticationTypes();
+                      if (loginProviders.Count() == 0)
+                      {
+                        <p class="text-danger">Er kunnen geen externe loginmogelijkheden gevonden worden. Probeer later opnieuw.</p>
+                      }
+                      else
+                      {
+                          if (Model.CurrentLogins.Count > 0)
+                          {
+                              <p class="subtitle-gray">Reeds geregistreerde login mogelijkheden:</p>
+                              foreach (var account in Model.CurrentLogins)
+                              {
+                                  <div class="row">
+                                      <div class="col-md-2">
+                                          <p>@account.LoginProvider</p>
+                                      </div>
+                                      <div class="col-md-4">
+                                          @if (ViewBag.ShowRemoveButton)
+                                          {
+                                              using (Html.BeginForm("RemoveLogin", "Manage"))
+                                              {
+                                                  @Html.AntiForgeryToken()
+                                                  <div>
+                                                      @Html.Hidden("loginProvider", account.LoginProvider)
+                                                      @Html.Hidden("providerKey", account.ProviderKey)
+                                                      <input type="submit" class="btn btn-default" value="Verwijder login" title="Remove this @account.LoginProvider login from your account"/>
+                                                  </div>
+                                              }
+                                          }
+                                      </div>
+                                  </div>
+                              }
+                          }
+                          if (Model.OtherLogins.Count > 0)
+                          {
+                              <hr/>
+                              <p class="subtitle-gray">Andere login mogelijkheden:</p>
+                              using (Html.BeginForm("LinkLogin", "Manage"))
+                              {
+                                  <div class="row">
+                                      <div id="socialLoginList" class="col-xs-12">
+                                          @Html.AntiForgeryToken()
+                                          @foreach (AuthenticationDescription p in Model.OtherLogins)
+                                          {
+                                              if (p.AuthenticationType.ToString().Equals("Google"))
+                                              {
+                                            <div class="row">
+                                                <div class="col-md-2">
+                                                    <p>Google</p>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <div class="form-group">
+                                                        <button type="submit" class="btn btn-default btn-block social-media-btn google-btn" id="@p.AuthenticationType" name="provider" value="@p.AuthenticationType" title="Log in using your @p.Caption account">
+                                                            <img class="img-rounded" src="~/Content/Images/Google.ico">
+                                                            Log in
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                              }
+                                              else if (p.AuthenticationType.ToString().Equals("Facebook"))
+                                              {
+                                            <div class="row">
+                                                <div class="col-md-2">
+                                                    <p>Facebook</p>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <div class="form-group">
+                                                        <button type="submit" class="btn btn-default btn-block social-media-btn facebook-btn" id="@p.AuthenticationType" name="provider" value="@p.AuthenticationType" title="Log in using your @p.Caption account">
+                                                            <img class="img-rounded" src="~/Content/Images/Facebook.ico">
+                                                            Log in
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                              }
+                                          }
+                                      </div>
+                                  </div>
+                              }
+                          }
+                      }
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

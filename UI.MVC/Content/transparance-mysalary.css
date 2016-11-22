@@ -1,0 +1,32 @@
+﻿#my-salary {
+    padding-bottom: 15px;
+    background-color: white;
+    outline: 1px solid #b2b2b2;
+    box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.2);
+}
+
+#my-salary-input {
+    padding-top: 1em;
+    padding-bottom: 1em;
+}
+
+#my-salary-input .subtitle {
+    text-align: center;
+    padding-bottom: 1em;
+}
+
+#workergroup {
+    width: 100%;
+}
+
+#workertype {
+    border-radius: 5px;
+}
+
+#BudgetText {
+    text-align: center;
+}
+
+svg {
+    margin: 0 6rem;
+}

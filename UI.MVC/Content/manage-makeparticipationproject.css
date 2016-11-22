@@ -1,0 +1,20 @@
+﻿#participationproject {
+    background-color: white;
+    outline: 1px solid #b2b2b2;
+    box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.2);
+}
+
+.form-horizontal .control-label {
+    text-align: left;
+}
+
+.level-b {
+    padding-left: 30px;
+}
+
+.level-c {
+    padding-left: 45px;
+}
+.glyphicon{
+    color:darkgray;
+}

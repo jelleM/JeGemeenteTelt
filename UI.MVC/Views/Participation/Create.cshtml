@@ -1,0 +1,275 @@
+﻿@model BEP.BL.Models.ParticipatieProjecten.Begrotingsvoorstel
+@using BEP.BL.Models.ParticipatieProjecten;
+@using BEP.BL.Models.Begrotingen;
+@using System.Linq;
+@{
+    ViewBag.Title = "Begrotingsvoorstel voor " + Model.ParticipatieProject.Begroting.Gemeente.Naam;
+    var sliderId = 0;
+    string sliderIdString = "slider";
+    string amountIdString = "amount";
+    string levelAIdString = "level-a";
+    string levelBIdString = "level-b";
+    var levelAnr = 0;
+    var levelBnr = 0;
+}
+
+@section head {
+    <link rel="stylesheet" href="~/Content/participation-create.css">
+    <link rel="stylesheet" href="~/Content/bootstrap-slider.css">
+}
+
+<section class="container">
+    @* Maken van een voorstel *@
+    <article id="budgetproposal-create" class="row group">
+        <div class="col-xs-12">
+
+            @* Projecttitel *@
+            <div class="hidden" id="projectId">@Model.ParticipatieProject.ParticipatieProjectId</div>
+            <div class="hidden" id="begrotingJaartal">@Model.Begroting.Jaartal</div>
+            <div class="hidden" id="zip">@Model.Begroting.Gemeente.Postcode</div>
+            <article class="row">
+                <div class="col-xs-12">
+                    @* Hier moet de projecttitel komen. *@
+                    <h1>@Model.ParticipatieProject.Titel</h1>
+                    <p class="big-subtitle">@Model.ParticipatieProject.Type</p>
+                </div>
+            </article>
+
+            @* Begrotingsgrafiek *@
+            <div class="row">
+                <div id="budgetchart" class="col-xs-12">
+                    <svg preserveAspectRatio="xMinYMin meet" viewBox="0 0 750 350"></svg>
+                </div>
+            </div>
+
+            @* Resterend te spenderen bedrag *@
+            <div id="resting-amount" class="row">
+                <div class="col-xs-12">
+                    <p class="subtitle">Resterend bedrag:</p>
+                    <p id="big-amount">€ @Model.ParticipatieProject.Bedrag</p>
+                </div>
+            </div>
+
+            @* Begrotingsinformatie *@
+
+            <div class="row">
+                @foreach (Budget b in Model.Budgetten)
+                {
+                    sliderId++;
+                    sliderIdString = "slider" + sliderId;
+                    amountIdString = "amount" + sliderId;
+                    StartBudget startbudget = Model.ParticipatieProject.StartBudgetten.Single(sb => sb.CategorieInformatie.CategorieInformatieId == b.CategorieInformatie.CategorieInformatieId);
+                    if (b.CategorieInformatie.Categorie.CategorieNiveau == CategorieNiveau.A)
+                    {
+                        levelAIdString = "level-a-" + levelAnr;
+                        levelAnr++;
+                        <div class="col-xs-12 level level-a" id="@levelAIdString">
+                            @* Slider: Mininum en maximum instellen via de data attributen *@
+                            @if (startbudget.Aanpasbaarheid == StartBudgetAanpasbaarheid.Gesloten)
+                            {
+                                <input class="slider slider-a locked-slider" id="@sliderIdString" type="text" data-slider-min="@((int)startbudget.MinimumBedrag)" data-slider-max="@((int)startbudget.MaximumBedrag)" data-slider-step="100" value="@((int)b.Bedrag)" data-slider-value="@((int)b.Bedrag)" data-slider-handle="square" />
+                                <p class="level-title">@b.CategorieInformatie.Categorie.Naam <span class="locked"></span></p>
+                            }
+                            else
+                            {
+                                <input class="slider slider-a" id="@sliderIdString" type="text" data-slider-min="@((int)startbudget.MinimumBedrag)" data-slider-max="@((int)startbudget.MaximumBedrag)" data-slider-step="100" value="@((int)b.Bedrag)" data-slider-value="@((int)b.Bedrag)" data-slider-handle="square" />
+                                <p class="level-title">@b.CategorieInformatie.Categorie.Naam</p>
+                            }
+
+                            @* Bedrag bepaald door sliders *@
+                            <p class="level-budget"><span class="amount" id="@amountIdString">€ @startbudget.Bedrag</span></p>
+                            <a class="budget-link" data-toggle="collapse" data-target="#budget-info-@b.CategorieInformatie.CategorieInformatieId">
+                                Meer info
+                            </a>
+                            <a class="arrow-link category-link arrow-a">
+                                Toon subcategoriëen
+                                <span class="glyphicon glyphicon-chevron-up"></span>
+                            </a>
+                            <div id="budget-info-@b.CategorieInformatie.CategorieInformatieId" class="collapse">
+                                <p class="level-description-100">
+                                    @if (b.CategorieInformatie.Informatie != null)
+                                    {
+                                        @b.CategorieInformatie.Informatie
+
+                                    }
+                                    else
+                                    {
+                                        <span class="text-info">Er is voorlopig geen informatie beschikbaar.</span>
+                                    }
+                                </p>
+                                @* Video en afbeelding check. *@
+                                <div class="row budget-image">
+                                    @if (b.CategorieInformatie.Afbeelding != null)
+                                    {
+
+                                        var imgSrc = b.CategorieInformatie.Afbeelding;
+                                        <div class="col-xs-12 budget-image-100">
+                                            <img src="@imgSrc" alt="budget-image" />
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    if (b.CategorieInformatie.Categorie.CategorieNiveau == CategorieNiveau.B)
+                    {
+                        levelBIdString = "level-b-" + levelBnr;
+                        levelBnr++;
+                        <div class="col-xs-12 level level-b" id="@levelBIdString">
+                            <div class="hidden" id="@sliderIdString-id-a">@levelAIdString</div>
+                            <div class="hidden" id="@levelBIdString-id-a">@levelAIdString</div>
+                            @* Slider *@
+                            @if (startbudget.Aanpasbaarheid == StartBudgetAanpasbaarheid.Gesloten)
+                            {
+                                <input class="slider slider-b locked-slider" id="@sliderIdString" type="text" data-slider-min="@((int)startbudget.MinimumBedrag)" data-slider-max="@((int)startbudget.MaximumBedrag)" data-slider-step="100" value="@((int)b.Bedrag)" data-slider-value="@((int)b.Bedrag)" data-slider-handle="square" />
+                                <p class="level-title">@b.CategorieInformatie.Categorie.Naam <span class="locked"></span></p>
+                            }
+                            else
+                            {
+                                <input class="slider slider-b" id="@sliderIdString" type="text" data-slider-min="@((int)startbudget.MinimumBedrag)" data-slider-max="@((int)startbudget.MaximumBedrag)" data-slider-step="100" value="@((int)b.Bedrag)" data-slider-value="@((int)b.Bedrag)" data-slider-handle="square" />
+                                <p class="level-title">@b.CategorieInformatie.Categorie.Naam</p>
+                            }                        <div class="hidden" id="@sliderIdString-max">@((int)startbudget.MaximumBedrag)</div>
+                            <div class="hidden" id="@sliderIdString-min">@((int)startbudget.MinimumBedrag)</div>
+                            @* End slider *@
+                            <p class="level-budget"><span class="amount" id="@amountIdString">€ @startbudget.Bedrag</span></p>
+                            <a class="budget-link" data-toggle="collapse" data-target="#budget-info-@b.CategorieInformatie.CategorieInformatieId">
+                                Meer info
+                            </a>
+                            <a class="arrow-link category-link arrow-b">
+                                Toon subcategoriëen
+                                <span class="glyphicon glyphicon-chevron-up"></span>
+                            </a>
+                            <div id="budget-info-@b.CategorieInformatie.CategorieInformatieId" class="collapse">
+                                <p class="level-description-110">
+                                    @if (b.CategorieInformatie.Informatie != null)
+                                    {
+                                        @b.CategorieInformatie.Informatie
+
+                                    }
+                                    else
+                                    {
+                                        <span class="text-info">Er is voorlopig geen informatie beschikbaar.</span>
+                                    }
+                                </p>
+                                @* Afbeelding check. *@
+                                <div class="row budget-image">
+                                    @if (b.CategorieInformatie.Afbeelding != null)
+                                    {
+
+                                        var imgSrc = b.CategorieInformatie.Afbeelding;
+                                        <div class="col-xs-12 budget-image-110">
+                                            <img src="@imgSrc" alt="budget-image" />
+                                        </div>
+                                    }
+
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    if (b.CategorieInformatie.Categorie.CategorieNiveau == CategorieNiveau.C)
+                    {
+                        <div class="col-xs-12 level level-c" id="@b.CategorieInformatie.CategorieInformatieId">
+                            <div class="hidden" id="@sliderIdString-id-a">@levelAIdString</div>
+                            <div class="hidden" id="@sliderIdString-id-b">@levelBIdString</div>
+                            <div class="hidden" id="@b.CategorieInformatie.CategorieInformatieId-id-a">@levelAIdString</div>
+                            <div class="hidden" id="@b.CategorieInformatie.CategorieInformatieId-id-b">@levelBIdString</div>
+                            @* Slider: Mininum en maximum instellen via de data attributen *@
+                            @if (startbudget.Aanpasbaarheid == StartBudgetAanpasbaarheid.Gesloten)
+                            {
+                                <input class="slider slider-c locked-slider" id="@sliderIdString" type="text" data-slider-min="@((int)startbudget.MinimumBedrag)" data-slider-max="@((int)startbudget.MaximumBedrag)" data-slider-step="100" value="@((int)b.Bedrag)" data-slider-value="@((int)b.Bedrag)" data-slider-handle="square" />
+                                <p class="level-title">@b.CategorieInformatie.Categorie.Naam <span class="locked"></span></p>
+                            }
+                            else
+                            {
+                                <input class="slider slider-c" id="@sliderIdString" type="text" data-slider-min="@((int)startbudget.MinimumBedrag)" data-slider-max="@((int)startbudget.MaximumBedrag)" data-slider-step="100" value="@((int)b.Bedrag)" data-slider-value="@((int)b.Bedrag)" data-slider-handle="square" />
+                                <p class="level-title">@b.CategorieInformatie.Categorie.Naam</p>
+                            }
+                            @* Bedrag bepaald door sliders *@
+                            <p class="level-budget"><span class="amount" id="@amountIdString">€ @startbudget.Bedrag</span></p>
+                            <a class="budget-link" data-toggle="collapse" data-target="#budget-info-@b.CategorieInformatie.CategorieInformatieId">
+                                Meer info
+                            </a>
+                            <div id="budget-info-@b.CategorieInformatie.CategorieInformatieId" class="collapse">
+                                <p class="level-description-111">
+                                    @if (b.CategorieInformatie.Informatie != null)
+                                    {
+                                        @b.CategorieInformatie.Informatie
+                                    }
+                                    else
+                                    {
+                                        <span class="text-info">Er is voorlopig geen informatie beschikbaar.</span>
+                                    }
+                                </p>
+                                @* Video en afbeelding check. *@
+                                <div class="row budget-image">
+                                    @if (b.CategorieInformatie.Afbeelding != null)
+                                    {
+
+                                        var imgSrc = b.CategorieInformatie.Afbeelding;
+                                        <div class="col-xs-12 budget-image-111">
+                                            <img src="@imgSrc" alt="budget-image" />
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                }
+
+                @* Begroting indienen *@
+                <article id="budgetproposal-description" class="col-xs-12">
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <h1>Uitleg bij jouw voorstel</h1>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <div class="row">
+                                <div class="col-xs-12 col-md-6">
+                                    <form>
+                                        <fieldset class="form-group">
+                                            <label for="short-description">Korte beschrijving</label>
+                                            <textarea maxlength="500" class="form-control" id="short-description"></textarea>
+                                        </fieldset>
+                                    </form>
+                                    <p class="col-sm-2 pull-left text-left" id="remainingchars-short-description">500</p>
+                                </div>
+                                <div class="col-xs-12 col-md-6">
+                                    <form>
+                                        <fieldset class="form-group">
+                                            <label for="long-description">Uitgebreide beschrijving</label>
+                                            <textarea maxlength="1000" class="form-control" id="long-description"></textarea>
+                                        </fieldset>
+                                    </form>
+                                    <p class="col-sm-2 pull-left text-left" id="remainingchars-long-description">1000</p>
+                                </div>
+                            </div>
+                            <span class="btn btn-default btn-file">
+                                <span class="glyphicon glyphicon-camera" aria-hidden="true"></span> Foto toevoegen <input type="file" name="file-upload" id="file-upload" />
+                            </span>
+                        </div>
+                        <div class="col-xs-12">
+                            <div class="row">
+                                <div class="col-xs-12 col-md-4 col-md-push-4">
+                                    <input id="submit-budget" type="submit" value="Voorstel indienen" class="btn btn-default btn-post" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+            </div>
+        </div>
+    </article>
+</section>
+
+
+@section scripts {
+    <script type="text/javascript" src="~/Scripts/jquery-2.2.3.js"></script>
+    <script type="text/javascript" src="~/Scripts/bootstrap-slider.js"></script>
+    <script type="text/javascript" src="~/Scripts/participation-create.js"></script>
+
+    <script type="text/javascript" src="~/Scripts/d3.v3.min.js"></script>
+    <script type="text/javascript" src="~/Scripts/participationCreateDiagram.js"></script>
+}

@@ -1,0 +1,273 @@
+﻿@model BEP.BL.Models.Gemeentes.Gemeente
+@using BEP.BL.Models.Begrotingen;
+@{
+  ViewBag.Title = "MySalary";
+  Layout = "~/Views/Shared/_Layout.cshtml";
+  string currentA = "";
+  string currentB = "";
+}
+
+@section head
+{
+    <link rel="stylesheet" href="~/Content/transparance-mysalary.css" />
+}
+
+<section class="container">
+    <div class="hidden" id="city">@Model.Postcode</div>
+    <div class="hidden" id="cityTax">@Model.GemeenteBelasting</div>
+    <div class="hidden" id="worktypehidden">@ViewBag.Type</div>
+
+    @* Maken van een voorstel *@
+    <article id="my-salary" class="row group">
+        <div class="col-xs-12">
+
+            @* Projecttitel *@
+            <article class="row">
+                <div class="col-xs-12">
+                    @* Hier moet de gemeente komen. *@
+                    <h1>Mijn loon in @Model.Naam</h1>
+                    <p class="subtitle-gray">Waar gaat je geld naartoe in de huidige begroting?</p>
+                </div>
+            </article>
+
+            @* Begrotingsgrafiek *@
+            <div class="row">
+                <div id="budgetchart" class="col-xs-12">
+                    <svg preserveAspectRatio="xMinYMin meet" viewBox="0 0 750 350"></svg>
+                </div>
+            </div>
+
+            @* Ingeven van jouw loon *@
+            <div id="my-salary-input" class="col-xs-12 col-md-4 col-md-offset-4">
+                <p class="subtitle">Geef jouw brutoloon in euro:</p>
+                <div class="row">
+                    <div class="col-xs-5">
+                        <div id="workergroup" class="input-group">
+                            <select id="workertype" name="workertype" class="form-control">
+                                <option value="Arbeider">Arbeider</option>
+                                <option value="Bediende">Bediende</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-xs-7">
+                        <div class="input-group">
+                            <input id="salary" type="text" class="form-control" value="@ViewBag.Salary">
+                            <span class="input-group-btn">
+                                <button class="btn btn-primary" type="button" id="calc-salary">Bereken</button>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xs-12">
+            @* Variabelen voor berekening progressbar. *@
+            @{ double total = 0;}
+            @{ double categorieWidth = 0;}
+            @{ string catWidth = "";}
+
+            @* Begroting met de besteding van het loon *@
+            @*Begroting*@
+            @if (ViewBag.CurrentBudget != null && ViewBag.Salary != 0)
+            {
+                // Totaalbedrag van de begroting berekenen.
+                foreach (CategorieInformatie catinfo in ViewBag.CurrentBudget.CategorieInformaties)
+                {
+                    if (catinfo.Categorie.CategorieNiveau == CategorieNiveau.A)
+                    {
+                        total += catinfo.Bedrag;
+                    }
+                }
+
+
+                foreach (CategorieInformatie catinfo in ViewBag.CurrentBudget.CategorieInformaties)
+                {
+                    if (catinfo.Categorie.CategorieNiveau == CategorieNiveau.A)
+                    {
+                        // Breedte van progressbar Categorie A berekenen tav het totaalbedrag van de begroting.
+                        categorieWidth = Math.Round(catinfo.Bedrag / total * 100, 2);
+                        catWidth = Convert.ToString(categorieWidth).Replace(",", ".");
+
+
+                        currentA = catinfo.CategorieInformatieId.ToString();
+                <div class="col-xs-12 level level-a" id="@catinfo.CategorieInformatieId">
+                    <div class="progress">
+                        <div class="progress-bar progress-bar-custom" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: @catWidth%;">
+                            <span class="sr-only">60% Complete</span>
+                        </div>
+                    </div>
+                    <p class="level-title">@catinfo.Categorie.Naam</p>
+                    <p class="level-budget">€ @catinfo.Bedrag.ToString("0.00")</p>
+                    <a class="budget-link" data-toggle="collapse" data-target="#budget-info-100-left-@catinfo.CategorieInformatieId">
+                        Meer info
+                    </a>
+                    <a class="arrow-link category-link arrow-a">
+                        Toon subcategoriëen
+                        <span class="glyphicon glyphicon-chevron-up"></span>
+                    </a>
+                    <div id="budget-info-100-left-@catinfo.CategorieInformatieId" class="collapse">
+                        @if (catinfo.Informatie != null)
+                        {
+                        <p id="level-description-100-left-@catinfo.CategorieInformatieId">
+                            @catinfo.Informatie
+                        </p>
+                        }
+                        else
+                        {
+                        <p id="level-description-100-left-@catinfo.CategorieInformatieId">
+                            Er is momenteel geen informatie beschikbaar.
+                        </p>
+                        }
+
+                        @* Video en afbeelding check. *@
+                        @if (catinfo.Afbeelding != null)
+                        {
+
+                            var imgSrcCatinfo = catinfo.Afbeelding;
+                        <div class="row budget-image">
+                            <div id="budget-image-100-left-@catinfo.CategorieInformatieId" class="col-xs-12">
+                                <img src="@imgSrcCatinfo" alt="budget-image" />
+                            </div>
+                        </div>
+                        }
+                        else
+                        {
+                        <div class="row budget-image">
+                            <div id="budget-image-100-left-@catinfo.CategorieInformatieId" class="col-xs-12">
+                                <span class="text-info"><b>Extra informatie: </b>Er is momenteel geen afbeelding beschikbaar.</span>
+                            </div>
+                        </div>
+                        }
+
+                    </div>
+                </div>
+                    }
+                    if (catinfo.Categorie.CategorieNiveau == CategorieNiveau.B)
+                    {
+                        // Breedte van progressbar Categorie B berekenen tav zijn respectievelijke categorie A.
+                        categorieWidth = catinfo.Bedrag;
+                        catWidth = Convert.ToString(categorieWidth).Replace(",", ".");
+
+                        currentB = catinfo.CategorieInformatieId.ToString();
+                <div class="col-xs-12 level level-b" id="@catinfo.CategorieInformatieId">
+                    <div class="hidden" id="@catinfo.CategorieInformatieId-id-a">@currentA</div>
+                    <div class="progress">
+                        <div class="progress-bar progress-bar-custom" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: @catWidth%;">
+                            <span class="sr-only">60% Complete</span>
+                        </div>
+                    </div>
+                    <p class="level-title">@catinfo.Categorie.Naam</p>
+                    <p class="level-budget">€ @catinfo.Bedrag.ToString("0.00")</p>
+                    <a class="budget-link" data-toggle="collapse" data-target="#budget-info-110-left-@catinfo.CategorieInformatieId">
+                        Meer info
+                    </a>
+                    <a class="arrow-link category-link arrow-b">
+                        Toon subcategoriëen
+                        <span class="glyphicon glyphicon-chevron-up"></span>
+                    </a>
+                    <div id="budget-info-110-left-@catinfo.CategorieInformatieId" class="collapse">
+                        @if (catinfo.Informatie != null)
+                        {
+                        <p id="level-description-110-left-@catinfo.CategorieInformatieId">
+                            @catinfo.Informatie
+                        </p>
+                        }
+                        else
+                        {
+                        <p id="level-description-110-left-@catinfo.CategorieInformatieId">
+                            Er is momenteel geen informatie beschikbaar.
+                        </p>
+                        }
+
+                        @* Video en afbeelding check. *@
+                        @if (catinfo.Afbeelding != null)
+                        {
+
+                            var imgSrcCatinfo = catinfo.Afbeelding;
+                        <div class="row budget-image">
+                            <div id="budget-image-110-left-@catinfo.CategorieInformatieId" class="col-xs-12">
+                                <img src="@imgSrcCatinfo" alt="budget-image" />
+                            </div>
+                        </div>
+                        }
+                        else
+                        {
+                        <div class="row budget-image">
+                            <div id="budget-image-110-left-@catinfo.CategorieInformatieId" class="col-xs-12">
+                                <span class="text-info"><b>Extra informatie: </b>Er is momenteel geen afbeelding beschikbaar.</span>
+                            </div>
+                        </div>
+                        }
+                    </div>
+
+                </div>
+                    }
+                    if (catinfo.Categorie.CategorieNiveau == CategorieNiveau.C)
+                    {
+                        // Breedte van progressbar Categorie C berekenen tav zijn respectievelijke categorie B.
+                        categorieWidth = catinfo.Bedrag;
+                        catWidth = Convert.ToString(categorieWidth).Replace(",", ".");
+
+                <div class="col-xs-12 level level-c" id="@catinfo.CategorieInformatieId">
+                    <div class="hidden" id="@catinfo.CategorieInformatieId-id-a">@currentA</div>
+                    <div class="hidden" id="@catinfo.CategorieInformatieId-id-b">@currentB</div>
+                    <div class="progress">
+                        <div class="progress-bar progress-bar-custom" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: @catWidth%;">
+                            <span class="sr-only">60% Complete</span>
+                        </div>
+                    </div>
+                    <p class="level-title">@catinfo.Categorie.Naam</p>
+                    <p class="level-budget">€ @catinfo.Bedrag.ToString("0.00")</p>
+                    <a class="budget-link" data-toggle="collapse" data-target="#budget-info-111-left-@catinfo.CategorieInformatieId">
+                        Meer info
+                    </a>
+                    <div id="budget-info-111-left-@catinfo.CategorieInformatieId" class="collapse">
+                        @if (catinfo.Informatie != null)
+                        {
+                        <p id="level-description-111-left-@catinfo.CategorieInformatieId">
+                            @catinfo.Informatie
+                        </p>
+                        }
+                        else
+                        {
+                        <p id="level-description-111-left-@catinfo.CategorieInformatieId">
+                            Er is momenteel geen informatie beschikbaar.
+                        </p>
+                        }
+
+                        @* Video en afbeelding check. *@
+                        @if (catinfo.Afbeelding != null)
+                        {
+
+                            var imgSrcCatinfo = catinfo.Afbeelding;
+                        <div class="row budget-image">
+                            <div id="budget-image-111-left-@catinfo.CategorieInformatieId" class="col-xs-12">
+                                <img src="@imgSrcCatinfo" alt="budget-image" />
+                            </div>
+                        </div>
+                        }
+                        else
+                        {
+                        <div class="row budget-image">
+                            <div id="budget-image-111-left-@catinfo.CategorieInformatieId" class="col-xs-12">
+                                <span class="text-info"><b>Extra informatie: </b>Er is momenteel geen afbeelding beschikbaar.</span>
+                            </div>
+                        </div>
+                        }
+                    </div>
+                </div>
+                    }
+                }
+            }
+        </div>
+    </article>
+</section>
+
+@section scripts
+{
+    <script type="text/javascript" src="~/Scripts/d3.v3.min.js"></script>
+    <script type="text/javascript" src="~/Scripts/mySalaryDiagram.js"></script>
+    <script type="text/javascript" src="~/Scripts/mysalary.js"></script>
+}
+

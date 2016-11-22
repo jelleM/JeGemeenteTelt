@@ -1,0 +1,99 @@
+﻿@{ViewBag.Title = "Beheer accountrollen";
+  Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section head {
+    <link rel="stylesheet" href="~/Content/manage-manageuserroles.css" />
+}
+
+<div class="container group-shadow">
+    <div class="row">
+        <div id="manage-roles" class="col-xs-12">
+            <div class="row">
+                <div class="col-xs-12">
+                    <h1>@ViewBag.Title</h1>
+                    <hr/>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="form-horizontal">
+                        <p class="subtitle-gray">Toegewezen rol van een gebruiker bekijken:</p>
+                        @using (Html.BeginForm("GetRoles", "Manage", new {@class = "form"}))
+                        {
+                            @Html.AntiForgeryToken()
+                            <div class="form-group">
+                                <label class="control-label col-md-2" for="UserName">Naam gebruiker:</label>
+                                <div class="col-md-4">
+                                    @Html.DropDownList("UserName", (IEnumerable<SelectListItem>) ViewBag.Users, "Selecteer gebruiker", htmlAttributes: new {@class = "form-control"})
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary col-md-2">
+                                <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+                                Bekijk rol gebruiker
+                            </button>
+                        }
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12">
+                    @if (ViewBag.RolesForThisUser != null)
+                    {
+                        <p class="result">Rol van @ViewBag.SearchedUser:</p>
+                        <ul class="list-group">
+                            @foreach (string s in ViewBag.RolesForThisUser)
+                            {
+                                if (s.Equals("Admin") || s.Equals("Moderator"))
+                                {
+                                    <li class="list-group-item-text col-md-offset-1">@s van @ViewBag.Gemeente.Naam (@ViewBag.Gemeente.Postcode)</li>
+                                }
+                                else
+                                {
+                                    <li class="list-group-item-text col-md-offset-1">@s</li>
+                                }
+
+                            }
+                        </ul>
+                    }
+                </div>
+            </div> @* Einde zoeken van gebruiker *@
+
+            <hr/>
+
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="form-horizontal">
+                        <p class="subtitle-gray">Rol wijzigen van een gebruiker:</p>
+                        @using (Html.BeginForm("ChangeRoleForUser", "Manage", new { @class = "form" }))
+                        {
+                            @Html.AntiForgeryToken()
+                            @Html.ValidationSummary(true)
+
+                            <div class="form-group">
+                                <label class="control-label col-md-2" for="UserName">Naam gebruiker:</label>
+                                <div class="col-md-4">
+                                    @Html.DropDownList("UserName", (IEnumerable<SelectListItem>) ViewBag.Users, "Selecteer gebruiker", htmlAttributes: new {@class = "form-control"})
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label col-md-2" for="RoleName">Rol van gebruiker:</label>
+                                <div class="col-md-4">
+                                    @Html.DropDownList("RoleName", (IEnumerable<SelectListItem>)ViewBag.Roles, "Selecteer rol", htmlAttributes: new { @class = "form-control" })
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary col-md-2">
+                                <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
+                                Pas rol aan
+                            </button>
+                        }
+                    </div>
+                </div>
+            </div> @* Einde aanpassen rollen *@
+
+        </div>
+    </div>
+</div>
+
+
+

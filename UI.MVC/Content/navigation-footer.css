@@ -1,0 +1,113 @@
+﻿/* Stylesheet gebruikt om de partial views (navigatie en footer) te stijlen. */
+
+/* Navigatie */
+.navbar {
+    margin-bottom: 0;
+    background-color: white;
+}
+
+.navbar-btn {
+    margin: 6px 6px;
+}
+
+.navbar-text {
+    margin-top: 0px;
+}
+
+.navbar-text:hover {
+    color: white;
+}
+
+/* Social media buttons*/
+.social-media-btn {
+    color: white;
+}
+
+.facebook-btn {
+    background: #4A6EA9;
+    margin-top: 35px;
+}
+
+.facebook-btn img {
+    height: 24px;
+}
+
+.google-btn {
+    background: #D64136;
+    margin-top: 24px;
+}
+
+.google-btn img {
+    height: 24px;
+}
+
+/* Footer */
+html {
+  height: 100%;
+  box-sizing: border-box;
+}
+
+body {
+    position: relative;
+    padding-bottom: 5em;
+    min-height: 100%;
+}
+
+footer {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+}
+
+.footerlogo {
+    padding-top: 20px;
+    max-width: 50%;
+}
+
+footer ul li a {
+    padding-left: 20px;
+    text-decoration: none;
+    color: white;
+    font-weight: 700;
+}
+
+footer ul li a:hover {
+    text-decoration: none;
+    color: lightblue;
+}
+
+footer ul {
+    padding: 30px 0;
+    margin-bottom: 0;
+}
+
+footer .text-center {
+    text-align: right;
+}
+
+@media only screen and (max-width : 992px) {
+    body {
+        padding-bottom: 12em;
+    }
+
+    footer .row-eq-height {
+        display: block;
+    }
+
+    footer ul li a {
+        padding-left: 0;
+    }
+
+    .footerlogo {
+        padding-top: 0;
+        padding-bottom: 20px;
+        display: block;
+        margin: 0 auto;
+    }
+
+    footer .text-center {
+        text-align: center;
+    }
+}

@@ -1,0 +1,24 @@
+﻿@model System.Web.Mvc.HandleErrorInfo
+
+@{
+  ViewBag.Title = "Error";
+}
+<div class="container">
+    <div class="row group-shadow alert-danger">
+        <div class="col-xs-12">
+            <h1>@ViewBag.Title</h1>
+            <hr/>
+            @{
+              if (String.IsNullOrEmpty(ViewBag.errorMessage))
+              {
+                <p class="text-danger">Er is een onverwachte fout opgetreden. Probeer later opnieuw</p>
+              }
+              else
+              {
+                <p class="text-danger">@ViewBag.errorMessage</p>
+              }
+            }
+        </div>
+    </div>
+</div>
+

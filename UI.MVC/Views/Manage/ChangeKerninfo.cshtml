@@ -1,0 +1,148 @@
+﻿@model BEP.BL.Models.Gemeentes.Gemeente
+
+@{
+    ViewBag.Title = "Kerninfo " + Model.Naam;
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section head {
+    <link rel="stylesheet" href="~/Content/manage-changekerninfo.css" />
+}
+
+@using (Html.BeginForm(null, null, FormMethod.Post, new { enctype = "multipart/form-data" }))
+
+{
+    @Html.AntiForgeryToken()
+    <div class="container">
+        <div class="row group-shadow">
+            <div id="change-info" class="col-xs-12">
+                <h1>Kerninfo van @Model.Naam wijzigen</h1>
+                <hr/>
+                <p class="subtitle-gray">Wijzig hier alle informatie over je gemeente.</p>
+                <div class="form-horizontal">
+                    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                    @Html.HiddenFor(model => model.GemeenteId)
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.Naam, htmlAttributes: new { @class = "col-sm-2 text-left" })
+                        <div class="col-sm-10">
+                            @Html.EditorFor(model => model.Naam, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.Provincie, htmlAttributes: new { @class = "col-sm-2 text-left" })
+                        <div class="col-sm-10">
+                            @Html.EditorFor(model => model.Provincie, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.Postcode, htmlAttributes: new { @class = "col-sm-2 text-left" })
+                        <div class="col-sm-10">
+                            @Html.EditorFor(model => model.Postcode, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.Burgemeester, "Burgemeester", htmlAttributes: new { @class = "col-sm-2 text-left" })
+                        <div class="col-sm-10">
+                            @Html.EditorFor(model => model.Burgemeester, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.Burgemeester, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.AantalInwoners, "Aantal inwoners", htmlAttributes: new { @class = "col-sm-2 text-left" })
+                        <div class="col-sm-10">
+                            @Html.EditorFor(model => model.AantalInwoners, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.AantalInwoners, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.Bevolkingsdichtheid, "Bevolkingsdichtheid (inw./km²)", htmlAttributes: new { @class = "col-sm-2 text-left" })
+                        <div class="col-sm-10">
+                            @Html.EditorFor(model => model.Bevolkingsdichtheid, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.Bevolkingsdichtheid, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+
+
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.GemeenteBelasting, "Gemeentebelasting", htmlAttributes: new { @class = "col-sm-2 text-left" })
+                        <div class="col-sm-10">
+                            @Html.EditorFor(model => model.GemeenteBelasting, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.GemeenteBelasting, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.TotaleOppervlakte, "Totale oppervlakte (in km²)", htmlAttributes: new { @class = "col-sm-2 text-left" })
+                        <div class="col-sm-10">
+                            @Html.EditorFor(model => model.TotaleOppervlakte, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.TotaleOppervlakte, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.TotaalBestuursZetels, "Totaal bestuurszetels", htmlAttributes: new { @class = "col-sm-2 text-left" })
+                        <div class="col-sm-10">
+                            @Html.EditorFor(model => model.TotaalBestuursZetels, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.TotaalBestuursZetels, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.AantalVrouwen, "Aantal vrouwen (in %)", htmlAttributes: new { @class = "col-sm-2 text-left" })
+                        <div class="col-sm-10">
+                            @Html.EditorFor(model => model.AantalVrouwen, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.AantalVrouwen, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.AantalMannen, "Aantal mannen (in %)", htmlAttributes: new { @class = "col-sm-2 text-left" })
+                        <div class="col-sm-10">
+                            @Html.EditorFor(model => model.AantalMannen, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.AantalMannen, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.AantalKind, "Aantal 0-17 (in %)", htmlAttributes: new { @class = "col-sm-2 text-left" })
+                        <div class="col-sm-10">
+                            @Html.EditorFor(model => model.AantalKind, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.AantalKind, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.AantalAchtienVierenzestig, "Aantal 18-64 (in %)", htmlAttributes: new { @class = "col-sm-2 text-left" })
+                        <div class="col-sm-10">
+                            @Html.EditorFor(model => model.AantalAchtienVierenzestig, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.AantalAchtienVierenzestig, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.AantalVijfenzestigPlus, "Aantal 65+ (in %)", htmlAttributes: new { @class = "col-sm-2 text-left" })
+                        <div class="col-sm-10">
+                            @Html.EditorFor(model => model.AantalVijfenzestigPlus, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.AantalVijfenzestigPlus, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary col-md-2">
+                        <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
+                        Wijzig kerninfo
+                    </button>
+
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

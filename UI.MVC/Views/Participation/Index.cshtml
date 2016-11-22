@@ -1,0 +1,406 @@
+﻿@using Microsoft.AspNet.Identity
+@model BEP.BL.Models.Gemeentes.Gemeente
+@using BEP.BL.Models.ParticipatieProjecten
+@{
+  ViewBag.Title = "Participatie in " + Model.Naam;
+  Layout = "~/Views/Shared/_Layout.cshtml";
+  var showFirst = 8;
+  var showFirstProposals = 3;
+  if (ViewBag.ProjectList.Count < 8)
+  {
+      showFirst = ViewBag.ProjectList.Count;
+  }
+  if (ViewBag.BudgetProposals.Count < 3)
+  {
+      showFirstProposals = ViewBag.BudgetProposals.Count;
+  }
+
+  var bootstrapcol = "col-xs-12 col-md-6 col-lg-4";
+
+  if (ViewBag.ProjectList.Count < 4)
+  {
+      if (ViewBag.ProjectList.Count == 3)
+      {
+          bootstrapcol = "col-xs-12 col-md-6 col-lg-4";
+      }
+      else if (ViewBag.ProjectList.Count == 2)
+      {
+          bootstrapcol = "col-xs-12 col-md-6";
+      }
+      else if (ViewBag.ProjectList.Count == 1)
+      {
+          bootstrapcol = "col-xs-12";
+      }
+  }
+}
+
+@section head
+{
+    <link rel="stylesheet" href="~/Content/participation.css">
+}
+
+<section class="container">
+
+    @* Participatie breadcrumbs *@
+    <ol class="breadcrumb">
+        <li><a href="@Url.Action("Index", "City", new { zip = Model.Postcode })">@Model.Naam</a></li>
+        <li class="active">Participatie</li>
+    </ol>
+
+    @* Overzicht projecten van gemeente *@
+    @if (User.Identity.IsAuthenticated)
+    {
+    <article id="project-overview" class="row group ">
+        <div class="col-xs-12">
+            <h1>@ViewBag.Title</h1>
+            <p class="hidden" id="zip">@Model.Postcode"</p>
+            <p class="hidden" id="sortmethod">@ViewBag.SortMethod</p>
+            <p class="big-subtitle">Kies een project</p>
+            @if (ViewBag.ProjectList != null && ViewBag.ProjectList.Count > 0)
+            {
+            <div class="row">
+                @for (var i = 0; i < showFirst; i++)
+                {
+                <div class="@bootstrapcol">
+                    <a href="@Url.Action("Create", "Participation", ViewBag.ProjectList[i])" class="thumbnail">
+                        <div class="thumbnail-text">
+                            <p>@ViewBag.ProjectList[i].Titel</p>
+                            <p>@ViewBag.ProjectList[i].Type</p>
+                        </div>
+                    </a>
+                </div>
+                }
+            </div>
+                if (ViewBag.ProjectList.Count > 8)
+                {
+                <div id="extra-projects" class="collapse">
+                    <div class="row">
+                        @for (var i = 8; i < ViewBag.ProjectList.Count; i++)
+                        {
+                        <div class="col-sm-3">
+                            <a href="@Url.Action("Create", "Participation", ViewBag.ProjectList[i])" class="thumbnail">
+                                <div class="thumbnail-text">
+                                    <p>@ViewBag.ProjectList[i].Titel</p>
+                                    <p>@ViewBag.ProjectList[i].Type</p>
+                                </div>
+                            </a>
+                        </div>
+                        }
+                    </div>
+                </div>
+                }
+            }
+            else
+            {
+            <p class="text-info">Er zijn geen projecten beschikbaar in @Model.Naam</p>
+            }
+            @if (ViewBag.ProjectList.Count > showFirst)
+            {
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="btn btn-default" data-toggle="collapse" data-target="#extra-projects">Laad meer voorstellen <span class="glyphicon glyphicon-chevron-up"></span></div>
+                </div>
+            </div>
+            }
+        </div>
+    </article>
+
+    }
+    else
+    {
+    <article id="project-overview" class="row group ">
+        <div class="col-xs-12 ">
+            <h1>@ViewBag.Title</h1>
+            <p class="hidden" id="zip">@Model.Postcode"</p>
+            <p class="hidden" id="sortmethod">@ViewBag.SortMethod</p>
+            <p class="big-subtitle">Kies een project</p>
+            @if (ViewBag.ProjectList != null && ViewBag.ProjectList.Count > 0)
+            {
+            <div class="row disabled-background">
+                @for (var i = 0; i < showFirst; i++)
+                {
+                <div class="@bootstrapcol" data-toggle="tooltip" title="Je moet hiervoor ingelogd zijn!">
+                    <a href="#" class="thumbnail locked">
+                        <div class="thumbnail-text">
+                            <p>@ViewBag.ProjectList[i].Titel</p>
+                            <p>@ViewBag.ProjectList[i].Type</p>
+                        </div>
+                    </a>
+                </div>
+                }
+            </div>
+                if (ViewBag.ProjectList.Count > 8)
+                {
+                <div id="extra-projects" data-toggle="tooltip" class="collapse disabled-background" title="Je moet hiervoor ingelogd zijn!">
+                    <div class="row">
+                        @for (var i = 8; i < ViewBag.ProjectList.Count; i++)
+                        {
+                        <div class="col-sm-3">
+                            <a href="#" class="thumbnail">
+                                <div class="thumbnail-text">
+                                    <p>@ViewBag.ProjectList[i].Titel</p>
+                                    <p>@ViewBag.ProjectList[i].Type</p>
+                                </div>
+                            </a>
+                        </div>
+                        }
+                    </div>
+                </div>
+                }
+            }
+            else
+            {
+            <p class="text-info">Er zijn geen projecten beschikbaar in @Model.Naam</p>
+            }
+            @if (ViewBag.ProjectList.Count > showFirst)
+            {
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="btn btn-default" data-toggle="collapse" data-target="#extra-projects">Laad meer voorstellen <span class="glyphicon glyphicon-chevron-up"></span></div>
+                </div>
+            </div>
+            }
+        </div>
+    </article>
+    }
+
+    @if (User.Identity.IsAuthenticated)
+    {
+    <div class="row">
+        <div class="col-sm-12 text-center hidden-xs">
+            <a href="@Url.Action("Create", new { zip = Model.Postcode })" id="make-proposal-button" class="btn btn-primary"><span class="glyphicon glyphicon-pencil"></span> Of maak je eigen begrotingsvoorstel!</a>
+        </div>
+        <div class="col-sm-12 text-center hidden-sm hidden-md hidden-lg">
+            <a href="@Url.Action("Create", new { zip = Model.Postcode })" id="make-proposal-button" class="btn btn-primary"><span class="glyphicon glyphicon-pencil"></span> Doe zelf een voorstel!</a>
+        </div>
+    </div>
+    }
+    else
+    {
+    <div class="row">
+        <div class="col-sm-12 text-center">
+            <div data-toggle="tooltip" title="Je moet hiervoor ingelogd zijn!"><a href="@Url.Action("Create", routeValues: null)" id="make-proposal-button" class="btn btn-primary disabled "><span class="glyphicon glyphicon-lock"></span> Of maak je eigen begrotingsvoorstel!</a></div>
+        </div>
+    </div>
+    }
+    <article id="budget-proposals" class="row group">
+        <div class="col-xs-12">
+            <h1 id="resize-fix">Begrotingsvoorstellen</h1>
+            <p class="big-subtitle">Sorteer op:</p>
+            <div id="sort-buttons" class="btn-group" role="group" aria-label="...">
+                <button type="button" id="draagvlak" class="btn btn-default sort active">Draagvlak</button>
+                <button type="button" id="datum" class="btn btn-default sort">Datum</button>
+                <button type="button" id="budgetwijziging" class="btn btn-default sort">Budgetwijziging</button>
+            </div>
+        </div>
+    
+        <div class="col-xs-12">
+            @for (var i = 0; i < showFirstProposals; i++)
+            {
+            <div class="col-xs-12 begrotingsvoorstel">
+                <div class="row row-eq-height">
+                    <div class="col-sm-4 begrotingsvoorstel-left text-center">
+                        <div class="budgetproposal-link">
+                            <a href="@Url.Action("Details", "Participation", new {begrotingsVoorstelId = ViewBag.BudgetProposals[i].BegrotingsVoorstelId})">
+                                @if (@ViewBag.BudgetProposals[i].ParticipatieProject != null)
+                                {
+                                <p class="budgetproposal-title">@ViewBag.BudgetProposals[i].ParticipatieProject.Titel</p>
+                                }
+                                else
+                                {
+                                <p class="budgetproposal-title">Eigen voorstel</p>
+                                }
+                                <p class="budgetproposal-subtitle">@ViewBag.BudgetProposals[i].Voorsteller</p>
+                            </a>
+                            @if (HttpContext.Current.User.Identity.GetUserId() != null)
+                            {
+                                bool exist = false;
+                                foreach (Like l in ViewBag.BudgetProposals[i].Likes)
+                                {
+                                    if (l.UserId.Equals(HttpContext.Current.User.Identity.GetUserId()))
+                                    {
+                                        exist = true;
+                                    }
+                                }
+                                if (exist)
+                                {
+                                <div id="@ViewBag.BudgetProposals[i].BegrotingsVoorstelId" class="draagvlak-selected">@ViewBag.BudgetProposals[i].Draagvlak <span class="glyphicon glyphicon-heart"></span></div>
+                                }
+                                else
+                                {
+                                <div id="@ViewBag.BudgetProposals[i].BegrotingsVoorstelId" class="draagvlak">@ViewBag.BudgetProposals[i].Draagvlak <span class="glyphicon glyphicon-heart"></span></div>
+                                }
+                            }
+                            else
+                            {
+                            <div id="@ViewBag.BudgetProposals[i].BegrotingsVoorstelId" class="draagvlak">@ViewBag.BudgetProposals[i].Draagvlak <span class="glyphicon glyphicon-heart"></span></div>
+                            }
+                        </div>
+                    </div>
+                    <div class="col-sm-8 begrotingsvoorstel-right">
+                        <div class="row">
+                            <div class="col-xs-6">
+                                @if (ViewBag.BudgetProposals[i].ParticipatieProject != null)
+                                {
+                                    if (ViewBag.BudgetProposals[i].ParticipatieProject.Type.Equals(ProjectType.Besparing))
+                                    {
+                                    <p class="subtitle">Besparing:</p>
+                                    <p class="budgetproposal-amount">€ @((ViewBag.BudgetProposals[i].ParticipatieProject.Begroting.Totaal).ToString("N"))</p>
+                                    <p class="budgetproposal-amountnegative">- € @((ViewBag.BudgetProposals[i].ParticipatieProject.Bedrag + ViewBag.BudgetProposals[i].TotaalBudgetwijziging).ToString("N"))</p>
+                                    <p class="subtitle">Doel:</p>
+                                    <p class="budgetproposal-amountnegative">- € @((0 - ViewBag.BudgetProposals[i].ParticipatieProject.Bedrag).ToString("N"))</p>
+                                    }
+                                    else if (ViewBag.BudgetProposals[i].ParticipatieProject.Type.Equals(ProjectType.Bestemming))
+                                    {
+                                    <p class="subtitle">Bestemming:</p>
+                                    <p class="budgetproposal-amount">€ @((ViewBag.BudgetProposals[i].ParticipatieProject.Begroting.Totaal).ToString("N"))</p>
+                                    <p class="budgetproposal-amountpositive">+ € @((ViewBag.BudgetProposals[i].ParticipatieProject.Bedrag - ViewBag.BudgetProposals[i].TotaalBudgetwijziging).ToString("N"))</p>
+                                    <p class="subtitle">Doel:</p>
+                                    <p class="budgetproposal-amountpositive">+ € @ViewBag.BudgetProposals[i].ParticipatieProject.Bedrag.ToString("N")</p>
+                                    }
+                                }
+                                else
+                                {
+                                <p class="subtitle">Herschikking:</p>
+                                <p class="budgetproposal-amount">€ @(ViewBag.BudgetProposals[i].Begroting.Totaal.ToString("N"))</p>
+                                    if (ViewBag.BudgetProposals[i].TotaalBudgetwijziging >= 0)
+                                    {
+                                    <p class="budgetproposal-amountpositive">+ € @((ViewBag.BudgetProposals[i].TotaalBudgetwijziging).ToString("N"))</p>
+                                    }
+                                    else if (ViewBag.BudgetProposals[i].TotaalBudgetwijziging < 0)
+                                    {
+                                    <p class="budgetproposal-amountnegative">- € @((ViewBag.BudgetProposals[i].ParticipatieProject.Bedrag.ToString("N")))</p>
+                                    }
+                                }
+                            </div>
+                            <div class="col-xs-6">
+                                <p class="subtitle">Datum:</p>
+                                <p class="budgetproposal-date hidden-xs hidden-sm">@String.Format("{0:dd MMMM yyyy}", ViewBag.BudgetProposals[i].Datum)</p>
+                                <p class="budgetproposal-date hidden-md hidden-lg">@String.Format("{0:dd/MM/yyyy}", ViewBag.BudgetProposals[i].Datum)</p>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <p class="subtitle">Beschrijving:</p>
+                                <p>@ViewBag.BudgetProposals[i].KorteBeschrijving</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            }
+            <div id="extra-budgetproposals" class="collapse">
+                @for (var j = showFirst; j < ViewBag.BudgetProposals.Count; j++)
+                {
+                <div class="col-xs-12 begrotingsvoorstel">
+
+                    <div class="row row-eq-height">
+                        <div class="col-sm-4 begrotingsvoorstel-left text-center">
+                            <div class="budgetproposal-link">
+                                <a href="@Url.Action("Details", "Participation", new {begrotingsVoorstelId = ViewBag.BudgetProposals[j].BegrotingsVoorstelId})">
+                                    @if (@ViewBag.BudgetProposals[j].ParticipatieProject != null)
+                                    {
+                                    <p class="budgetproposal-title">@ViewBag.BudgetProposals[j].ParticipatieProject.Titel</p>
+                                    }
+                                    else
+                                    {
+                                    <p class="budgetproposal-title">Eigen voorstel</p>
+                                    }
+                                    <p class="budgetproposal-subtitle">@ViewBag.BudgetProposals[j].Voorsteller</p>
+                                </a>
+                                @if (HttpContext.Current.User.Identity.GetUserId() != null)
+                                {
+                                    bool exist = false;
+                                    foreach (Like l in ViewBag.BudgetProposals[j].Likes)
+                                    {
+                                        if (l.UserId.Equals(HttpContext.Current.User.Identity.GetUserId()))
+                                        {
+                                            exist = true;
+                                        }
+                                    }
+                                    if (exist)
+                                    {
+                                    <div id="@ViewBag.BudgetProposals[j].BegrotingsVoorstelId" class="draagvlak-selected">@ViewBag.BudgetProposals[j].Draagvlak <span class="glyphicon glyphicon-heart"></span></div>
+                                    }
+                                    else
+                                    {
+                                    <div id="@ViewBag.BudgetProposals[j].BegrotingsVoorstelId" class="draagvlak">@ViewBag.BudgetProposals[j].Draagvlak <span class="glyphicon glyphicon-heart"></span></div>
+                                    }
+                                }
+                                else
+                                {
+                                <div id="@ViewBag.BudgetProposals[j].BegrotingsVoorstelId" class="draagvlak">@ViewBag.BudgetProposals[j].Draagvlak <span class="glyphicon glyphicon-heart"></span></div>
+                                }
+                            </div>
+                        </div>
+                        <div class="col-sm-8 begrotingsvoorstel-right">
+                            <div class="col-xs-6">
+                                @if (ViewBag.BudgetProposals[j].ParticipatieProject != null)
+                                {
+                                    if (ViewBag.BudgetProposals[j].ParticipatieProject.Type.Equals(ProjectType.Besparing))
+                                    {
+                                    <p class="subtitle">Besparing:</p>
+                                    <p class="budgetproposal-amount">€ @((ViewBag.BudgetProposals[j].ParticipatieProject.Begroting.Totaal).ToString("N"))</p>
+                                        <p class="budgetproposal-amountnegative">- € @((ViewBag.BudgetProposals[j].ParticipatieProject.Bedrag + ViewBag.BudgetProposals[j].TotaalBudgetwijziging).ToString("N"))</p>
+                                        <p class="subtitle">Doel:</p>
+                                        <p class="budgetproposal-amountnegative">- € @((0 - ViewBag.BudgetProposals[j].ParticipatieProject.Bedrag).ToString("N"))</p>
+                                    }
+                                    else if (ViewBag.BudgetProposals[j].ParticipatieProject.Type.Equals(ProjectType.Bestemming))
+                                    {
+                                    <p class="subtitle">Bestemming:</p>
+                                    <p class="budgetproposal-amount">€ @((ViewBag.BudgetProposals[j].ParticipatieProject.Begroting.Totaal).ToString("N"))</p>
+                                        <p class="budgetproposal-amountpositive">+ € @((ViewBag.BudgetProposals[j].ParticipatieProject.Bedrag - ViewBag.BudgetProposals[j].TotaalBudgetwijziging).ToString("N"))</p>
+                                        <p class="subtitle">Doel:</p>
+                                        <p class="budgetproposal-amountpositive">+ € @ViewBag.BudgetProposals[j].ParticipatieProject.Bedrag.ToString("N")</p>
+                                    }
+                                }
+                                else
+                                {
+                                <p class="subtitle">Herschikking:</p>
+                                <p class="budgetproposal-amount">@(ViewBag.BudgetProposals[j].Begroting.Totaal.ToString("N"))€</p>
+                                    if (ViewBag.BudgetProposals[j].TotaalBudgetwijziging >= 0)
+                                    {
+                                    <p class="budgetproposal-amountpositive">+ € @((ViewBag.BudgetProposals[j].TotaalBudgetwijziging).ToString("N"))</p>
+                                    }
+                                    else if (ViewBag.BudgetProposals[j].TotaalBudgetwijziging < 0)
+                                    {
+                                    <p class="budgetproposal-amountnegative">- € @((ViewBag.BudgetProposals[j].ParticipatieProject.Bedrag.ToString("N")))</p>
+                                    }
+                                }
+
+                            </div>
+                            <div class="col-xs-6">
+                                <p class="subtitle">Datum:</p>
+                                <p class="budgetproposal-date hidden-xs hidden-sm">@String.Format("{0:dd MMMM yyyy}", ViewBag.BudgetProposals[j].Datum)</p>
+                                <p class="budgetproposal-date hidden-md hidden-lg">@String.Format("{0:dd/MM/yyyy}", ViewBag.BudgetProposals[j].Datum)</p>
+                            </div>
+                            <div class="col-xs-12">
+                                <p class="subtitle">Beschrijving:</p>
+                                <p>@ViewBag.BudgetProposals[j].KorteBeschrijving</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                }
+            </div>
+            @if (ViewBag.BudgetProposals.Count > showFirst)
+            {
+            <div class="col-xs-12">
+                <div id="see-more-button" class="btn btn-default" data-toggle="collapse" data-target="#extra-budgetproposals">
+                    <p>Laad meer voorstellen </p>
+                    <span id="see-more" class="glyphicon glyphicon-chevron-down"></span>
+                </div>
+            </div>
+            }
+        </div>
+    </article>
+</section>
+
+@section scripts
+{
+
+    <script type="text/javascript" src="~/Scripts/likeProposal.js"></script>
+    <script type="text/javascript" src="~/Scripts/sort.js"></script>
+    <script type="text/javascript" src="~/Scripts/participation-index.js"></script>
+}

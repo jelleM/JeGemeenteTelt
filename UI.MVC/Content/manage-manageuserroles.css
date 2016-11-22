@@ -1,0 +1,16 @@
+﻿#manage-roles {
+    padding-bottom: 15px;
+}
+
+.form-horizontal .control-label {
+    text-align: left;
+}
+
+.result {
+    font-weight: 700;
+}
+
+.resultlist {
+    font-weight: 700;
+    color: #337ab7;
+}

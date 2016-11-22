@@ -1,0 +1,44 @@
+﻿@using BEP.BL.Models
+@model LoginViewModel
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-6">
+            <div id="loginForm">
+                @using (Html.BeginForm("Login", "Account", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { @class = "form", role = "form", id = "loginform" }))
+                {
+                @Html.AntiForgeryToken()
+                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                    //Input voor email
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.Email, "E-mail")
+                        @Html.TextBoxFor(m => m.Email, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(m => m.Email, "", new { @class = "text-danger" })
+                    </div>
+                    // Input voor wachtwoord
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.Password, "Wachtwoord")
+                        @Html.PasswordFor(m => m.Password, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(m => m.Password, "", new { @class = "text-danger" })
+                        <p> @Html.ActionLink("Wachtwoord vergeten?", "ForgotPassword", "Account") </p>
+                    </div>
+                    // Checkbox voor remember me
+                    <div class="form-group">
+                        <div class="checkbox">
+                            <label>@Html.CheckBoxFor(m => m.RememberMe) Onthoud mij</label>
+                        </div>
+                    </div>
+                    // Login knop
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-default" id="btnLogin">Log in</button>
+                    </div>
+                }
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div id="socialLoginForm">
+                @Html.Partial("~/Views/Account/_ExternalLoginsListPartial.cshtml", new ExternalLoginListViewModel { ReturnUrl = ViewBag.ReturnUrl })
+            </div>
+        </div>
+    </div>
+
+</div>

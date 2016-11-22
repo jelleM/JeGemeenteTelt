@@ -1,0 +1,507 @@
+﻿@model BEP.BL.Models.Gemeentes.Gemeente
+@using Microsoft.Ajax.Utilities;
+@using BEP.BL.Models.Begrotingen;
+@using BEP.BL.Models.ParticipatieProjecten;
+@using System.Linq;
+@{
+    var imgSrc = "";
+    if (Model.Afbeelding != null)
+    {
+        //var base64 = Convert.ToBase64String(Model.Afbeelding);
+        //imgSrc = String.Format("data:image/gif;base64,{0}", base64);
+        imgSrc = Model.Afbeelding;
+    }
+    else
+    {
+        imgSrc = "Content/Images/Gemeentes/default.jpg";
+    }
+
+    //Verdelen project over pagina
+    var bootstrapcol = "col-xs-12 col-md-6 col-lg-4";
+
+    if (Model.ParticipatieProjecten.Count < 4)
+    {
+        if (Model.ParticipatieProjecten.Count == 3)
+        {
+            bootstrapcol = "col-xs-12 col-md-6 col-lg-4";
+        }
+        else if (Model.ParticipatieProjecten.Count == 2)
+        {
+            bootstrapcol = "col-xs-12 col-md-6";
+        }
+        else if (Model.ParticipatieProjecten.Count == 1)
+        {
+            bootstrapcol = "col-xs-12";
+        }
+    }
+    string currentAId = "";
+    string currentBId = "";
+}
+
+@section head
+{
+    <link rel="stylesheet" href="~/Content/city-home.css">
+}
+
+<section class="container">
+    <div class="hidden" id="city">@Model.Postcode</div>
+    @* Responsive gemeente panel. *@
+    <div class="row group">
+        <div class="col-xs-12">
+            <article id="key-information" class="row row-eq-height">
+                @if (imgSrc.Equals(""))
+                {
+                    <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3 city-bg">
+
+                    </div>
+                }
+                else
+                {
+                    <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3 city-bg" style="background:url('@imgSrc') center center no-repeat;background-size:cover;">
+
+                    </div>
+                }
+
+
+                <div class="col-xs-12 col-sm-12 col-md-9 col-lg-9">
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                            <h1>@Model.Naam</h1>
+                            <p class="subtitle">Deelgemeenten</p>
+                            @if (@Model.Deelgemeentes.IsNullOrWhiteSpace())
+                            {
+                                <p>N/B</p>
+                            }
+                            else
+                            {
+                                <p>@Model.Deelgemeentes</p>
+                            }
+                            <a id="info-link" class="hidden-md hidden-lg" data-toggle="collapse" data-target="#extra-info">
+                                <div id="info-toggle">
+                                    <p id="info-toggle-text">Meer info</p>
+                                    <span id="info-toggle-glyphicon" class="glyphicon glyphicon-chevron-up"></span>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                    <div id="extra-info" class="collapsed">
+                        <div id="panel-border" class="row border-between">
+                            <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4 city-info">
+                                <p class="big-subtitle">Informatie</p>
+                                <div class="row">
+                                    <div class="col-xs-4 col-sm-4 col-md-12 col-lg-12">
+                                        <img class="person-senior" src="../../Content/Icons/mayor.svg" />
+                                        <p class="subtitle">Burgemeester</p>
+                                        @if (Model.Burgemeester != null)
+                                        {
+                                            <p>@Model.Burgemeester</p>
+
+                                        }
+                                        else
+                                        {
+                                            <p>N/B</p>
+                                        }
+                                    </div>
+                                    <div class="col-xs-4 col-sm-4 col-md-6 col-lg-6">
+                                        <img class="person-senior" src="../../Content/Icons/area.svg" />
+                                        <p class="subtitle">Oppervlakte</p>
+                                        @if (Model.TotaleOppervlakte > 0)
+                                        {
+                                            <p>@String.Format("{0} km²", Model.TotaleOppervlakte)</p>
+                                        }
+                                        else
+                                        {
+                                            <p>N/B</p>
+                                        }
+                                    </div>
+                                    <div class="col-xs-4 col-sm-4 col-md-6 col-lg-6">
+                                        <img class="person-senior" src="../../Content/Icons/population.svg" />
+                                        <p class="subtitle">Inwoners</p>
+                                        @if (Model.AantalInwoners > 0)
+                                        {
+                                            <p>@String.Format("{0:0,0}", Model.AantalInwoners)</p>
+                                        }
+                                        else
+                                        {
+                                            <p>N/B</p>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4 city-people">
+                                <p class="big-subtitle">Bevolking</p>
+                                <div class="row">
+                                    <div class="col-xs-4 col-sm-4 col-md-6 col-lg-6">
+                                        <img class="male" src="../../Content/Icons/male.svg" />
+                                        <p class="subtitle">Mannen</p>
+                                        @if (Model.AantalMannen > 0)
+                                        {
+                                            <p>@String.Format("{0} %", Model.AantalMannen)</p>
+                                        }
+                                        else
+                                        {
+                                            <p>N/B</p>
+                                        }
+                                    </div>
+                                    <div class="col-xs-4 col-sm-4 col-md-6 col-lg-6">
+                                        <img class="female" src="../../Content/Icons/female.svg" />
+                                        <p class="subtitle">Vrouwen</p>
+                                        @if (Model.AantalVrouwen > 0)
+                                        {
+                                            <p>@String.Format("{0} %", Model.AantalVrouwen)</p>
+                                        }
+                                        else
+                                        {
+                                            <p>N/B</p>
+                                        }
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-4">
+                                        <img class="person-child" src="../../Content/Icons/personS.svg" />
+                                        <p class="subtitle">0-17 jaar</p>
+                                        @if (Model.AantalKind > 0)
+                                        {
+                                            <p>@String.Format("{0} %", Model.AantalKind)</p>
+                                        }
+                                        else
+                                        {
+                                            <p>N/B</p>
+                                        }
+                                    </div>
+                                    <div class="col-xs-4">
+                                        <img class="person-adult" src="../../Content/Icons/personM.svg" />
+                                        <p class="subtitle">18-64 jaar</p>
+                                        @if (Model.AantalAchtienVierenzestig > 0)
+                                        {
+                                            <p>@String.Format("{0} %", Model.AantalAchtienVierenzestig)</p>
+                                        }
+                                        else
+                                        {
+                                            <p>N/B</p>
+                                        }
+                                    </div>
+                                    <div class="col-xs-4">
+                                        <img class="person-senior" src="../../Content/Icons/person.svg" />
+                                        <p class="subtitle">65+</p>
+                                        @if (Model.AantalVijfenzestigPlus > 0)
+                                        {
+                                            <p>@String.Format("{0} %", Model.AantalVijfenzestigPlus)</p>
+                                        }
+                                        else
+                                        {
+                                            <p>N/B</p>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4 city-politics">
+                                <p class="big-subtitle">Politiek</p>
+                                <div class="row">
+                                    <div class="col-xs-6 col-sm-6 col-md-12">
+                                        <div class="town-council">
+                                            <img src="../../Content/Images/arc.png" />
+                                        </div>
+                                        <p class="subtitle">Gemeenteraad</p>
+                                        <p>N/B</p>
+                                    </div>
+                                    <div class="col-xs-6 col-sm-6 col-md-12">
+                                        <div class="aldermen">
+                                            <img src="../../Content/Images/arc.png" />
+                                        </div>
+                                        <p class="subtitle">Schepencollege</p>
+                                        <p>N/B</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </article>
+        </div>
+    </div>
+
+    @* Participatie button group. *@
+    <article id="participation-button-group" class="row group">
+        <div class="col-xs-12 col-md-4">
+            <a class="btn btn-default btn-participation" href="@Url.Action("Compare","Transparance",new { zip1 = Model.Postcode, year1 = DateTime.Now.Year })">Begrotingen vergelijken</a>
+        </div>
+        @if (ViewBag.CurrentBudget != null)
+        {
+            <div class="col-xs-12 col-md-4">
+                <a class="btn btn-default btn-participation" href="@Url.Action("Index","Participation",new { zip = Model.Postcode })">Participeren</a>
+            </div>
+        }
+        else
+        {
+            <div class="col-xs-12 col-md-4">
+                <a class="btn btn-default btn-participation disabled" href="@Url.Action("Index","Participation",new { zip = Model.Postcode })">Participeren</a>
+            </div>
+        }
+        <div class="col-xs-12 col-md-4">
+            @if (Model.GemeenteBelasting != 0 && Model.BegrotingsTypes.SingleOrDefault(bt => bt.Jaartal == DateTime.Now.Year) != null)
+            {
+            <a class="btn btn-default btn-participation" href="@Url.Action("MySalary", "Transparance",new { zip = Model.Postcode })">Mijn loon</a>
+            }
+            else
+            {
+            <a class="btn btn-default btn-participation disabled" href="@Url.Action("MySalary", "Transparance",new { zip = Model.Postcode })">Mijn loon</a>
+            }
+        </div>
+    </article>
+
+    @* Begrotingsgrafiek en categorie-informatie. *@
+    <article id="budget-information" class="row group">
+        <div class="col-xs-12">
+            <div class="row">
+                <h1 class="text-center">Huidige begroting</h1>
+            </div>
+            <div class="row">
+                <div id="budgetchart" class="col-xs-12">
+                    <svg preserveAspectRatio="xMinYMin meet" viewBox="0 0 750 400"></svg>
+                </div>
+            </div>
+            @* Variabelen voor berekening progressbar. *@
+            @{ double total = 0;}
+            @{ double categorieWidth = 0;}
+            @{ string catWidth = "";}
+
+            @*Begroting*@
+            @if (ViewBag.CurrentBudget != null)
+            {
+                // Totaalbedrag van de begroting berekenen.
+                total = ViewBag.CurrentBudget.Totaal;
+
+                // Hulpvariabelen voor het berekening van de breedte van de progressbar.
+                double catATotal = 0;
+                double catBTotal = 0;
+
+                foreach (CategorieInformatie catinfo in ViewBag.CurrentBudget.CategorieInformaties)
+                {
+                    if (catinfo.Categorie.CategorieNiveau == CategorieNiveau.A)
+                    {
+                        // Breedte van progressbar Categorie A berekenen tav het totaalbedrag van de begroting.
+                        categorieWidth = Math.Round(catinfo.Bedrag / total * 100, 2);
+                        catWidth = Convert.ToString(categorieWidth).Replace(",", ".");
+
+                        // Totaal categorie A resetten.
+                        catATotal = 0;
+                        // Totaal van deze categorie A bijhouden.
+                        catATotal = catinfo.Bedrag;
+                        currentAId = catinfo.CategorieInformatieId.ToString();
+                        <div class="col-xs-12 level level-a" id="@catinfo.CategorieInformatieId">
+                            <div class="progress">
+                                <div class="progress-bar progress-bar-custom" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: @catWidth%;">
+                                    <span class="sr-only">60% Complete</span>
+                                </div>
+                            </div>
+                            <p class="level-title">@catinfo.Categorie.Naam</p>
+                            <p class="level-budget">€ @catinfo.Bedrag.ToString("N")</p>
+                            <a class="budget-link" data-toggle="collapse" data-target="#budget-info-100-left-@catinfo.CategorieInformatieId">
+                                Meer info
+                            </a>
+                            <a class="arrow-link category-link arrow-a">
+                                Toon subcategorieën
+                                <span class="glyphicon glyphicon-chevron-up"></span>
+                            </a>
+                            <div id="budget-info-100-left-@catinfo.CategorieInformatieId" class="collapse">
+                                @if (catinfo.Informatie != null)
+                                {
+                                    <p id="level-description-100-left-@catinfo.CategorieInformatieId">
+                                        @catinfo.Informatie
+                                    </p>
+                                }
+                                else
+                                {
+                                    <p id="level-description-100-left-@catinfo.CategorieInformatieId">
+                                        Er is momenteel geen informatie beschikbaar.
+                                    </p>
+                                }
+
+                                @* Video en afbeelding check. *@
+                                @if (catinfo.Afbeelding != null)
+                                {
+
+                                    var imgSrcCatinfo = catinfo.Afbeelding;
+                                    <div class="row budget-image">
+                                        <div id="budget-image-100-left-@catinfo.CategorieInformatieId" class="col-xs-12">
+                                            <img src="@imgSrcCatinfo" alt="budget-image" />
+                                        </div>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="row budget-image">
+                                        <div id="budget-image-100-left-@catinfo.CategorieInformatieId" class="col-xs-12">
+                                            <span class="text-info"><b>Extra informatie: </b>Er is momenteel geen afbeelding beschikbaar.</span>
+                                        </div>
+                                    </div>
+                                }
+
+                            </div>
+                        </div>
+                    }
+
+                    if (catinfo.Categorie.CategorieNiveau == CategorieNiveau.B)
+                    {
+                        // Breedte van progressbar Categorie B berekenen tav zijn respectievelijke categorie A.
+                        categorieWidth = Math.Round(catinfo.Bedrag / catATotal * 100, 2);
+                        catWidth = Convert.ToString(categorieWidth).Replace(",", ".");
+
+                        // Totaal categorie B resetten.
+                        catBTotal = 0;
+                        // Totaal van deze categorie B bijhouden.
+                        catBTotal = catinfo.Bedrag;
+                        currentBId = catinfo.CategorieInformatieId.ToString();
+                        <div class="col-xs-12 level level-b" id="@catinfo.CategorieInformatieId">
+                            <div class="hidden" id="@catinfo.CategorieInformatieId-id-a">@currentAId</div>
+                            <div class="progress">
+                                <div class="progress-bar progress-bar-custom" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: @catWidth%;">
+                                    <span class="sr-only">60% Complete</span>
+                                </div>
+                            </div>
+                            <p class="level-title">@catinfo.Categorie.Naam</p>
+                            <p class="level-budget">€ @catinfo.Bedrag.ToString("N")</p>
+                            <a class="budget-link" data-toggle="collapse" data-target="#budget-info-110-left-@catinfo.CategorieInformatieId">
+                                Meer info
+                            </a>
+                            <a class="arrow-link category-link arrow-b">
+                                Toon subcategorieën
+                                <span class="glyphicon glyphicon-chevron-up"></span>
+                            </a>
+                            <div id="budget-info-110-left-@catinfo.CategorieInformatieId" class="collapse">
+                                @if (catinfo.Informatie != null)
+                                {
+                                    <p id="level-description-110-left-@catinfo.CategorieInformatieId">
+                                        @catinfo.Informatie
+                                    </p>
+                                }
+                                else
+                                {
+                                    <p id="level-description-110-left-@catinfo.CategorieInformatieId">
+                                        Er is momenteel geen informatie beschikbaar.
+                                    </p>
+                                }
+
+                                @* Video en afbeelding check. *@
+                                @if (catinfo.Afbeelding != null)
+                                {
+
+                                    var imgSrcCatinfo = catinfo.Afbeelding;
+                                    <div class="row budget-image">
+                                        <div id="budget-image-110-left-@catinfo.CategorieInformatieId" class="col-xs-12">
+                                            <img src="@imgSrcCatinfo" alt="budget-image" />
+                                        </div>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="row budget-image">
+                                        <div id="budget-image-110-left-@catinfo.CategorieInformatieId" class="col-xs-12">
+                                            <span class="text-info"><b>Extra informatie: </b>Er is momenteel geen afbeelding beschikbaar.</span>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+
+                        </div>
+                    }
+
+                    if (catinfo.Categorie.CategorieNiveau == CategorieNiveau.C)
+                    {
+                        // Breedte van progressbar Categorie C berekenen tav zijn respectievelijke categorie B.
+                        categorieWidth = Math.Round(catinfo.Bedrag / catBTotal * 100, 2);
+                        catWidth = Convert.ToString(categorieWidth).Replace(",", ".");
+
+                        <div class="col-xs-12 level level-c" id="@catinfo.CategorieInformatieId">
+                            <div class="hidden" id="@catinfo.CategorieInformatieId-id-a">@currentAId</div>
+                            <div class="hidden" id="@catinfo.CategorieInformatieId-id-b">@currentBId</div>
+                            <div class="progress">
+                                <div class="progress-bar progress-bar-custom" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: @catWidth%;">
+                                    <span class="sr-only">60% Complete</span>
+                                </div>
+                            </div>
+                            <p class="level-title">@catinfo.Categorie.Naam</p>
+                            <p class="level-budget">€ @catinfo.Bedrag.ToString("N")</p>
+                            <a class="budget-link" data-toggle="collapse" data-target="#budget-info-111-left-@catinfo.CategorieInformatieId">
+                                Meer info
+                            </a>
+                            <div id="budget-info-111-left-@catinfo.CategorieInformatieId" class="collapse">
+                                @if (catinfo.Informatie != null)
+                                {
+                                    <p id="level-description-111-left-@catinfo.CategorieInformatieId">
+                                        @catinfo.Informatie
+                                    </p>
+                                }
+                                else
+                                {
+                                    <p id="level-description-111-left-@catinfo.CategorieInformatieId">
+                                        Er is momenteel geen informatie beschikbaar.
+                                    </p>
+                                }
+
+                                @* Video en afbeelding check. *@
+                                @if (catinfo.Afbeelding != null)
+                                {
+
+                                    var imgSrcCatinfo = catinfo.Afbeelding;
+                                    <div class="row budget-image">
+                                        <div id="budget-image-111-left-@catinfo.CategorieInformatieId" class="col-xs-12">
+                                            <img src="@imgSrcCatinfo" alt="budget-image" />
+                                        </div>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="row budget-image">
+                                        <div id="budget-image-111-left-@catinfo.CategorieInformatieId" class="col-xs-12">
+                                            <span class="text-info"><b>Extra informatie: </b>Er is momenteel geen afbeelding beschikbaar.</span>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+                }
+            }
+        </div>
+    </article>
+
+    @* Projecten van de gemeente. *@
+    <div id="city-projects" class="row group">
+        <div class="col-xs-12">
+            <h1 class="text-center">Uitgelichte projecten van @Model.Naam</h1>
+        </div>
+        <div class="row">
+            <div class="col-xs-12">
+                @if (Model.ParticipatieProjecten.ToList<ParticipatieProject>().Where(p => p.Eindmoment > DateTime.Now).Count() > 0)
+                {
+
+                    foreach (var project in Model.ParticipatieProjecten.Where(p => p.Eindmoment > DateTime.Now))
+                    {
+                        <div class="@bootstrapcol">
+                            <a href="@Url.Action("Create","Participation",project)" class="thumbnail">
+                                <div class="thumbnail-text">
+                                    <p>@project.Titel</p>
+                                    <p>@project.Type</p>
+                                </div>
+                            </a>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="col-xs-12">
+                        <p class="text-center">Er zijn geen participatieprojecten beschikbaar voor @Model.Naam!</p>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</section>
+
+@section scripts {
+    <script type="text/javascript" src="~/Scripts/city-home.js"></script>
+    <script type="text/javascript" src="~/Scripts/d3.v3.min.js"></script>
+    <script type="text/javascript" src="~/Scripts/BudgetDiagram.js"></script>
+}

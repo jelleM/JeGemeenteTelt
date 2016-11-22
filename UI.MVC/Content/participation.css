@@ -1,0 +1,393 @@
+﻿/* Participatie breadcrumbs */
+.breadcrumb {
+    margin: 15px 0 15px 0;
+}
+
+/* Overzicht projecten van gemeente */
+#project-overview {
+    margin-top: 15px;
+    outline: 1px solid #b2b2b2;
+    box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.2);
+}
+
+.thumbnail-text {
+    padding-top: 5em;
+    padding-bottom: 5em;
+}
+
+.thumbnail-text p {
+    padding: 0;
+}
+
+.locked:hover {
+    background:linear-gradient(rgba(255, 0, 0,0.5),rgba(255, 0, 0,0.5)), url('Images/lock.png') no-repeat center;
+    background-color:#1C5F96;
+}
+
+.show-extra {
+    margin: 1px;
+    padding: 3px 10px;
+    cursor: pointer;
+    position: relative;
+    background-color: transparent;
+}
+
+.extra-content {
+    padding: 5px 10px;
+}
+
+/* Call to action maak begrotingsvoorstel */
+#make-proposal-button {
+    padding: 10px 30px 10px 30px;
+    font-size: 1.2em;
+}
+
+/* Begrotingsvoorstellen */
+#budget-proposals {
+    padding-bottom: 15px;
+    outline: 1px solid #b2b2b2;
+    box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.2);
+}
+
+#sort-buttons {
+    margin-bottom: 1em;
+}
+
+#buttongroup-title {
+    cursor: default;
+    background-color: lightgray;
+}
+
+.begrotingsvoorstel {
+    padding-bottom: 15px;
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+.begrotingsvoorstel-left {
+    background: linear-gradient(rgba(0, 0, 0, 0.6),rgba(0, 0, 0,0.6)), url("Images/thumbnail_default.jpg") center center no-repeat;
+    background-size: cover;    
+    outline: 1px solid #b2b2b2;
+    min-height: 200px;
+    color: white;
+}
+
+.budgetproposal-title {
+    font-size: 1.5em;
+    color: white;
+}
+
+.description-fix {
+    padding-left: 15px;
+}
+
+.budgetproposal-subtitle {
+    font-size: 1.2em;
+    color: white;
+}
+
+.budgetproposal-link {
+    padding: 4em 0;
+    color: white;
+}
+
+.begrotingsvoorstel-right {
+    padding-top: 15px;
+    padding-bottom: 15px;
+    min-height: 200px;
+    outline: 1px solid #b2b2b2;
+}
+
+.draagvlak:hover, .draagvlak:active, .draagvlak:link {
+    color: orangered;
+}
+
+.draagvlak span:hover, .draagvlak span:active, .draagvlak span:link, .draagvlak span:visited {
+    color: red;
+}
+
+.draagvlak-selected {
+    display: block;
+    margin: 0 auto;
+    padding: 10px;
+    outline: 1px solid white;
+    width: 100px;
+}
+
+.draagvlak-selected span {
+    color: red;
+}
+
+.budgetproposal-amount {
+    line-height: 1.2em;
+    font-size: 2em;
+    font-weight: 700;
+}
+
+.budgetproposal-amountnegative {
+    line-height: 1em;
+    font-size: 1.2em;
+    color: red;
+}
+
+.budgetproposal-amountpositive {
+    line-height: 1em;
+    font-size: 1.2em;
+    color: green;
+}
+
+.budgetproposal-date {
+    padding-top: 8px;
+    font-weight: 700;
+}
+
+.reaction {
+    border: 0.2em solid gray;
+    border-radius: 0.5em;
+    margin-top: 1em;
+    padding-top: 0.5em;
+}
+
+.reactionheader {
+    margin-bottom: 2em;
+}
+
+#see-more-button {
+    width: 200px;
+    display: block;
+    margin: 0 auto;
+    margin-top: 15px;
+}
+
+#see-more-button p {
+    margin: 0;
+    display: inline-block;
+}
+
+#see-more-button span {
+    display: inline-block;
+}
+
+/* Diagram */
+svg {
+    margin: 0 6rem;
+}
+
+#BudgetChangeText {
+    margin-bottom: 2em;
+}
+
+/*Reactions*/
+#reactions {
+    padding: 0;
+    margin-bottom: 0;
+}
+
+.answerReactionDot {
+    display: inline;
+    color: #9197a3;
+}
+
+.commentTextArea {
+    border: 1px solid #ccc;
+    padding: 0.5em;
+    height: 10rem;
+    resize: none;
+}
+
+.commentTextArea:focus {
+    outline: none;
+}
+
+#remainingChars, #remainingChars-sub {
+    padding-left: 0;
+    margin-top: 0.5em;
+    color: #337AB7;
+}
+
+.publishComment {
+    text-align: right;
+    display: block;
+    background: #EEF1F6;
+    padding: 1em;
+}
+
+
+.commentHolder {
+    background-color: #EEF1F6;
+    padding: 1em;
+    padding-right: 2em;
+    list-style: none;
+}
+
+.commentHolder img {
+    height: 3em;
+}
+
+.btn-primary {
+    margin-top: 0.7em;
+}
+
+.btnComment {
+    background-color: #5B74A8;
+    border: 0 none;
+    color: #FFFFFF;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: bold;
+    margin-top: 1.5em;
+    padding: 5px;
+    text-align: center;
+    border-radius: 0.2em;
+}
+
+/*Liken reacties*/
+.draagvlak {
+    display: block;
+    margin: 0 auto;
+    padding: 10px;
+    outline: 1px solid white;
+    width: 100px;
+}
+
+.draagvlak-reacties {
+    margin-bottom: 0;
+}
+
+.draagvlak-reacties:hover, .draagvlak:active, .draagvlak:link {
+    color: red;
+}
+
+.draagvlak-reacties span:hover, .draagvlak span:active, .draagvlak span:link, .draagvlak span:visited {
+    color: red;
+    }
+
+.draagvlak-reacties-selected span {
+    color: red;
+}
+
+.reaction-text {
+    word-wrap: break-word;
+}
+
+#show-extra {
+    cursor: pointer;
+}
+/*Subreacties*/
+.commentTextArea-sub {
+    border: 1px solid #ccc;
+    padding: 0.5em;
+    height: 5rem;
+}
+
+.commentTextArea-sub {
+    outline: none;
+}
+
+.publishComment-sub {
+    text-align: right;
+    display: block;
+    padding: 0;
+}
+
+.commentHolder-sub {
+    background-color: #EEF1F6;
+    padding: 1em;
+    padding-right: 2em;
+    list-style: none;
+    border-left: 4px solid #D4D4D4;
+}
+
+.commentHolder-sub img {
+    height: 3em;
+}
+
+.btnComment-sub {
+    background-color: #5B74A8;
+    border: 0 none;
+    color: #FFFFFF;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: bold;
+    margin-top: 0.7em;
+    padding: 2.5px;
+    text-align: center;
+    border-radius: 0.1em;
+}
+
+.subreactions {
+    list-style: none;
+}
+
+.subreactions ul {
+    padding-left: 0;
+}
+
+.react {
+    cursor: pointer;
+}
+
+.subreactionsComment {
+    background-color: #EEF1F6;
+    border-left: 4px solid #D4D4D4;
+    padding: 1em;
+    list-style: none;
+    height: 12rem;
+}
+
+.noshow-sub {
+    cursor: pointer;
+}
+
+.show-sub {
+    cursor: pointer;
+}
+
+/* Layout begrotingen */
+.orange {
+    outline: 1px solid #b2b2b2;
+}
+
+.yellow {
+    outline: 1px solid #b2b2b2;
+}
+
+/* Aanpassingen in css voor mobile. */
+@media only screen and (max-width : 992px) {
+    #resize-fix {
+        font-size: 28px;
+    }
+
+    .budgetproposal-amount {
+        font-size: 1.4em;
+        font-size: 1.8em;
+        padding-top: 8px;
+        font-weight: 700;
+    }
+}
+
+@media only screen and (max-width : 768px) {
+    .row-eq-height {
+        display: block;
+    }
+
+    #resize-fix {
+        font-size: 26px;
+    }
+
+    .commentHolder .text-right, .commentHolder-sub .text-right {
+        text-align: left;
+    }
+
+    .budgetproposal-amount {
+        font-size: 1.4em;
+        font-size: 1.2em;
+        padding-top: 8px;
+        font-weight: 700;
+    }
+
+    .budgetproposal-date {
+        padding-top: 11px;
+        line-height: 1.2em;
+    }
+}

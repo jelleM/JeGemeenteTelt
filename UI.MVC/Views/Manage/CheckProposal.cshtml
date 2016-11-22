@@ -1,0 +1,151 @@
+﻿@using BEP.BL.Models.ParticipatieProjecten
+@model BEP.BL.Models.ParticipatieProjecten.Begrotingsvoorstel
+
+@{
+    ViewBag.Title = "Voorstel nakijken";
+}
+
+@section head {
+    <link rel="stylesheet" href="~/Content/manage-checkproposal.css" />
+}
+
+<body>
+
+    <div id="check-proposal" class="container">
+
+        @* Participatie breadcrumbs *@
+        <ol class="breadcrumb">
+            <li><a href="@Url.Action("IndexProposals", "Manage")">Index</a></li>
+            <li class="active">Begrotingsvoorstel</li>
+        </ol>
+
+        <div class="row group-shadow">
+            <div class="col-xs-12">
+                <h1>Voorstel nakijken</h1>
+                <p class="subtitle-gray">Begrotingsvoorstel gemaakt door @Model.Voorsteller.</p>
+                <hr />
+            </div>
+
+            <div class="col-xs-12">
+                @using (Html.BeginForm("EditProposal", "Manage", new { Id = "check_proposal_form" }, FormMethod.Post, new { @class = "example" }))
+            {
+                    @Html.AntiForgeryToken()
+
+                    <div class="form-horizontal">
+                        <div class="form-group hidden">
+                            <label class="control-label col-md-2">Id</label>
+                            <div class="col-md-10">
+                                @Html.EditorFor(model => model.BegrotingsVoorstelId, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly", @id = "voorstel_id" } })
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-2">Korte beschrijving</label>
+                            <div class="col-md-10">
+                                @Html.EditorFor(model => model.KorteBeschrijving, new { htmlAttributes = new { @class = "form-control", @id = "text_kb" } })
+                            </div>
+
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-2">Lange beschrijving</label>
+                            <div class="col-md-10">
+                                @Html.TextAreaFor(model => model.LangeBeschrijving, new { @class = "form-control", rows = "5", @id = "text_lb" })
+                            </div>
+                        </div>
+                        <div class="form-group hidden">
+                            <label class="control-label col-md-2">Draagvlak</label>
+                            <div class="col-md-10">
+                                @Html.EditorFor(model => model.Draagvlak, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-2">Datum</label>
+                            <div class="col-md-10">
+                                @Html.EditorFor(model => model.Datum, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-2">Totale budgetwijziging</label>
+                            <div class="col-md-10">
+                                @Html.EditorFor(model => model.TotaalBudgetwijziging, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-2">Voorsteller</label>
+                            <div class="col-md-10">
+                                @Html.EditorFor(model => model.Voorsteller, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-2">Goedkeuringsstaat</label>
+                            <div class="col-md-10">
+                                @Html.EditorFor(model => model.GoedKeuringsStaat, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-md-12">
+                                <button type="submit" class="btn btn-primary"><span class="glyphicon glyphicon-floppy-save"></span> Wijzigingen opslaan</button>
+                                <button type="button" id="accept" data-toggle="modal" data-target="#myModal" class="btn btn-primary"><span class="glyphicon glyphicon-ok"></span> Goedkeuren / Afwijzen <span class="glyphicon glyphicon-remove"></span></button>
+                            </div>
+                        </div>
+
+                    </div>
+                }
+                <!-- Modal -->
+                <div id="myModal" class="modal fade" role="dialog">
+                    <div class="modal-dialog">
+
+                        <!-- Modal content-->
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                <h4 class="modal-title">Maak uw keuze!</h4>
+                            </div>
+                            <form class="form-inline" action="@Url.Action("sendmail", "manage", new {userId = Model.UserId})" method="post">
+                                <div class="modal-body">
+                                    <div class="row">
+                                        <label class="col-sm-3">Keuze</label>
+                                        <div class="col-sm-9">
+                                            <select id="dropdown" name="choice" class="form-control">
+                                                <option disabled selected value="Selecteer">Selecteer...</option>
+                                                <option value="Afwijzen">Afwijzen</option>
+                                                <option value="Goedkeuren">Goedkeuren</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <label class="col-sm-3">Onderwerp mail</label>
+                                        <div class="col-sm-9">
+                                            <textarea id="subject" name="subject" class="form-control" placeholder="Onderwerp van de mail."></textarea>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <label class="col-sm-3">Inhoud mail</label>
+                                        <div class="col-sm-9">
+                                            <textarea id="content" name="content" class="form-control" rows="5" placeholder="Geef hier je verklaring voor het goedkeuren of afwijzen."></textarea>
+                                        </div>
+                                    </div>
+                                    <div class="row hidden">
+                                        <label class="col-sm-4">Begrotingsvoorstel id</label>
+                                        <div class="col-xs-8">
+                                            <textarea readonly id="budgetproposal-id" name="budgetproposal-id" class="form-control">@Model.BegrotingsVoorstelId</textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button id="send" type="submit" disabled class="btn btn-primary">Verstuur</button>
+                                    <button type="button" class="btn btn-default" data-dismiss="modal">Sluiten</button>
+                                </div>
+                            </form>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+@section scripts
+{
+    <script type="text/javascript" src="~/Scripts/checkproposal.js"></script>
+}

@@ -1,0 +1,714 @@
+﻿@model BEP.BL.Models.ParticipatieProjecten.Begrotingsvoorstel
+@using Microsoft.AspNet.Identity
+@using BEP.BL.Models.ParticipatieProjecten;
+@using BEP.BL.Models.Gebruikers;
+@using BEP.BL.Models.Begrotingen;
+@{
+    ViewBag.Title = "Details";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var shareLink = "http://10.134.216.25:8004/Participation/Details?BegrotingsvoorstelId=" + Model.BegrotingsVoorstelId;
+    var twitterLink = "http://twitter.com/intent/tweet?text=Steun%20mij%20begrotingsvoorstel!%0A%0A" + Model.KorteBeschrijving.Replace(" ", "%20") + "%0A%0A";
+    var facebookLink = "https://www.facebook.com/sharer/sharer.php?u=" + shareLink;
+
+    var showFirst = 5;
+    if (Model.Reacties.ToList<Reactie>().Count < showFirst)
+    {
+        showFirst = Model.Reacties.ToList<Reactie>().Count;
+    }
+    string levelAIdString = "level-a";
+    string levelBIdString = "level-b";
+    var levelAnr = 0;
+    var levelBnr = 0;
+
+    var imgSrcBudgetproposal = "";
+    if (Model.Afbeelding != null)
+    {
+        imgSrcBudgetproposal = Model.Afbeelding;
+    }
+}
+
+@section head
+{
+    <meta property="og:url" content="http://10.134.216.25:8004/Participation/Details?BegrotingsvoorstelId=@Model.BegrotingsVoorstelId" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Je gemeente telt - Steun mijn voorstel!" />
+    <meta property="og:description" content="@Model.KorteBeschrijving" />
+
+    <link rel="stylesheet" href="~/Content/participation-details.css" />
+    <link rel="stylesheet" href="~/Content/bootstrap-social.css">
+}
+
+<body>
+    <section class="container">
+
+        <div class="hidden" id="proposal-id">@Model.BegrotingsVoorstelId</div>
+        @* Voorstel hoofding *@
+        <article id="proposal-details" class="row group-shadow">
+            <div class="col-xs-12">
+                <div class="row">
+                    <div class="col-sm-6">
+                        @if (@Model.ParticipatieProject != null)
+                        {
+                            <h1>@Model.ParticipatieProject.Titel</h1>
+                            <h4 class="hidden-xs hidden-sm">@Model.ParticipatieProject.Type</h4>
+                            <h2 class="hidden-md hidden-lg">@Model.Voorsteller</h2>
+                            <h4 class="hidden-md hidden-lg">@String.Format("{0:dd MMMM yyyy}", @Model.Datum)</h4>
+                        }
+                        else
+                        {
+                            <h1>Eigen voorstel</h1>
+                            <p class="subtitle-gray">Herschikking</p>
+                            <p class="hidden-md hidden-lg">@Model.Voorsteller</p>
+                            <p class="hidden-md hidden-lg">@String.Format("{0:dd MMMM yyyy}", @Model.Datum)</p>
+                        }
+
+                    </div>
+                    <div class="col-sm-6 hidden-xs hidden-sm text-right">
+                        <h2>@Model.Voorsteller</h2>
+                        <h4>@String.Format("{0:dd MMMM yyyy}", @Model.Datum)</h4>
+                    </div>
+                </div>
+                <div class="row">
+                    <div id="budgetchart" class="col-xs-12">
+                        <svg preserveAspectRatio="xMinYMin meet" viewBox="0 0 750 350"></svg>
+                    </div>
+                </div>
+                <div class="row">
+                    <div id="likes" class="col-xs-12 text-center">
+                        @if (HttpContext.Current.User.Identity.GetUserId() != null)
+                        {
+                            bool exist = false;
+                            foreach (Like l in Model.Likes)
+                            {
+                                if (l.UserId.Equals(HttpContext.Current.User.Identity.GetUserId()))
+                                {
+                                    exist = true;
+                                }
+                            }
+                            if (exist)
+                            {
+                                <div id="@Model.BegrotingsVoorstelId" class="draagvlak-selected text-center">@Model.Draagvlak <span class="glyphicon glyphicon-heart"></span></div>
+                            }
+                            else
+                            {
+                                <div id="@Model.BegrotingsVoorstelId" class="draagvlak text-center">@Model.Draagvlak <span class="glyphicon glyphicon-heart"></span></div>
+                            }
+                        }
+                        else
+                        {
+                            <div id="@Model.BegrotingsVoorstelId" class="draagvlak text-center">@Model.Draagvlak <span class="glyphicon glyphicon-heart"></span></div>
+                        }
+                        <a class="btn btn-social btn-facebook"
+                           title="Share on Facebook"
+                           href="#" onclick="window.open('@facebookLink', '_blank', 'location=yes,height=570,width=520,scrollbars=yes,status=yes');return false;" data-layout="button_count">
+                            <span class="fa fa-facebook"></span>Deel
+                        </a>
+                        <a class="btn btn-social btn-twitter"
+                           href=@twitterLink target="_blank" data-layout="button_count">
+                            <span class="fa fa-twitter"></span>Deel
+                        </a>
+                    </div>
+                </div>
+
+                @* Variabelen voor berekening progressbar. *@
+                @{ double total = 0;}
+                @{ double categorieWidth = 0;}
+
+                @{ string catWidth = "";}
+
+                @*Totaalbedrag van de begroting berekenen.*@
+                @foreach (Budget b in Model.Budgetten)
+                {
+                    if (b.CategorieInformatie.Categorie.CategorieNiveau == CategorieNiveau.A)
+                    {
+                        total += b.Bedrag;
+                    }
+                }
+
+                @*Hulpvariabelen voor het berekening van de breedte van de progressbar.*@
+                @{ double catATotal = 0; }
+                @{ double catBTotal = 0; }
+
+                @*Budgetten*@
+                @foreach (Budget b in Model.Budgetten)
+                {
+
+                    if (b.CategorieInformatie.Categorie.CategorieNiveau == CategorieNiveau.A)
+                    {
+                        levelAIdString = "level-a-" + levelAnr;
+                        levelAnr++;
+
+                        // Breedte van progressbar Categorie A berekenen tav het totaalbedrag van de begroting.
+                        categorieWidth = Math.Round(b.Bedrag / total * 100, 2);
+                        catWidth = Convert.ToString(categorieWidth).Replace(",", ".");
+
+                        // Totaal categorie A resetten.
+                        catATotal = 0;
+                        // Totaal van deze categorie A bijhouden.
+                        catATotal = b.Bedrag;
+
+                        <div class="col-xs-12 level level-a" id="@levelAIdString">
+                            <div class="progress">
+                                <div class="progress-bar progress-bar-custom" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: @catWidth%;">
+                                    <span class="sr-only">60% Complete</span>
+                                </div>
+                            </div>
+                            <p class="level-title">@b.CategorieInformatie.Categorie.Naam</p>
+                            @* Bedrag bepaald door sliders *@
+                            <p class="level-budget">€ @b.Bedrag.ToString("N")</p>
+                            <a class="budget-link" data-toggle="collapse" data-target="#budget-info-@b.CategorieInformatie.CategorieInformatieId">
+                                Meer info
+                            </a>
+                            <a class="arrow-link category-link arrow-a">
+                                Toon subcategoriëen
+                                <span class="glyphicon glyphicon-chevron-up"></span>
+                            </a>
+                            <div id="budget-info-@b.CategorieInformatie.CategorieInformatieId" class="collapse">
+                                <p class="level-description-100">
+                                    @if (b.CategorieInformatie.Informatie != null)
+                                    {
+                                        @b.CategorieInformatie.Informatie
+
+                                    }
+                                    else
+                                    {
+                                        <span class="text-info">Er is voorlopig geen informatie beschikbaar.</span>
+                                    }
+                                </p>
+                                @* Video en afbeelding check. *@
+                                <div class="row budget-image">
+                                    @if (b.CategorieInformatie.Afbeelding != null)
+                                    {
+
+                                        var imgSrc = b.CategorieInformatie.Afbeelding;
+                                        <div class="col-xs-12 budget-image-100">
+                                            <img src="@imgSrc" alt="budget-image" />
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    if (b.CategorieInformatie.Categorie.CategorieNiveau == CategorieNiveau.B)
+                    {
+
+                        // Breedte van progressbar Categorie B berekenen tav zijn respectievelijke categorie A.
+                        categorieWidth = Math.Round(b.Bedrag / catATotal * 100, 2);
+                        catWidth = Convert.ToString(categorieWidth).Replace(",", ".");
+
+                        // Totaal categorie B resetten.
+                        catBTotal = 0;
+                        // Totaal van deze categorie B bijhouden.
+                        catBTotal = b.Bedrag;
+
+                        levelBIdString = "level-b-" + levelBnr;
+                        levelBnr++;
+                        <div class="col-xs-12 level level-b" id="@levelBIdString">
+                            <div class="hidden" id="@levelBIdString-id-a">@levelAIdString</div>
+                            <div class="progress">
+                                <div class="progress-bar progress-bar-custom" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: @catWidth%;">
+                                    <span class="sr-only">60% Complete</span>
+                                </div>
+                            </div>
+                            <p class="level-title">@b.CategorieInformatie.Categorie.Naam </p>
+                            <p class="level-budget">€ @b.Bedrag.ToString("N")</p>
+                            <a class="budget-link" data-toggle="collapse" data-target="#budget-info-@b.CategorieInformatie.CategorieInformatieId">
+                                Meer info
+                            </a>
+                            <a class="arrow-link category-link arrow-b">
+                                Toon subcategoriëen
+                                <span class="glyphicon glyphicon-chevron-up"></span>
+                            </a>
+                            <div id="budget-info-@b.CategorieInformatie.CategorieInformatieId" class="collapse">
+                                <p class="level-description-110">
+                                    @if (b.CategorieInformatie.Informatie != null)
+                                    {
+                                        @b.CategorieInformatie.Informatie
+
+                                    }
+                                    else
+                                    {
+                                        <span class="text-info">Er is voorlopig geen informatie beschikbaar.</span>
+                                    }
+                                </p>
+                                @* Afbeelding check. *@
+                                <div class="row budget-image">
+                                    @if (b.CategorieInformatie.Afbeelding != null)
+                                    {
+
+                                        var imgSrc = b.CategorieInformatie.Afbeelding;
+                                        <div class="col-xs-12 budget-image-110">
+                                            <img src="@imgSrc" alt="budget-image" />
+                                        </div>
+                                    }
+
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    if (b.CategorieInformatie.Categorie.CategorieNiveau == CategorieNiveau.C)
+                    {
+                        // Breedte van progressbar Categorie C berekenen tav zijn respectievelijke categorie B.
+                        categorieWidth = Math.Round(b.Bedrag / catBTotal * 100, 2);
+                        catWidth = Convert.ToString(categorieWidth).Replace(",", ".");
+
+                        <div class="col-xs-12 level level-c" id="@b.CategorieInformatie.CategorieInformatieId">
+                            <div class="hidden" id="@b.CategorieInformatie.CategorieInformatieId-id-a">@levelAIdString</div>
+                            <div class="hidden" id="@b.CategorieInformatie.CategorieInformatieId-id-b">@levelBIdString</div>
+
+                            <div class="progress">
+                                <div class="progress-bar progress-bar-custom" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: @catWidth%;">
+                                    <span class="sr-only">60% Complete</span>
+                                </div>
+                            </div>
+                            <p class="level-title">@b.CategorieInformatie.Categorie.Naam </p>
+                            <p class="level-budget">€ @b.Bedrag.ToString("N")</p>
+                            <a class="budget-link" data-toggle="collapse" data-target="#budget-info-@b.CategorieInformatie.CategorieInformatieId">
+                                Meer info
+                            </a>
+                            <div id="budget-info-@b.CategorieInformatie.CategorieInformatieId" class="collapse">
+                                <p class="level-description-111">
+                                    @if (b.CategorieInformatie.Informatie != null)
+                                    {
+                                        @b.CategorieInformatie.Informatie
+                                    }
+                                    else
+                                    {
+                                        <span class="text-info">Er is voorlopig geen informatie beschikbaar.</span>
+                                    }
+                                </p>
+                                @* Video en afbeelding check. *@
+                                <div class="row budget-image">
+                                    @if (b.CategorieInformatie.Afbeelding != null)
+                                    {
+
+                                        var imgSrc = b.CategorieInformatie.Afbeelding;
+                                        <div class="col-xs-12 budget-image-111">
+                                            <img src="@imgSrc" alt="budget-image" />
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+                @* Beschrijving *@
+                <article class="row">
+                    <div class="col-xs-12">
+                        <div id="details-description" class="col-sm-12">
+                            <h1>Beschrijving</h1>
+                            <p>
+                                @if (!Model.LangeBeschrijving.Equals(""))
+                                {
+                                    @Model.LangeBeschrijving
+                                }
+                                else
+                                {
+                                    <span class="text-info">Geen lange beschrijving toegevoegd.</span>
+                                }
+
+                            </p>
+                            @if (!imgSrcBudgetproposal.Equals(""))
+                            {
+                                <img src="@imgSrcBudgetproposal" class="center-block img-responsive" />
+                            }
+                            else
+                            {
+                                <span class="text-info"><b>Extra info: </b> Geen afbeelding toegevoegd.</span>
+                            }
+                        </div>
+                    </div>
+                </article>
+
+                @* REACTIES *@
+                <article class="row">
+                    <div id="reactions-container" class="col-sm-12">
+                        <ul id="reactions" class="col-sm-12">
+                            @for (var i = 0; i < showFirst; i++)
+                            {
+                                var imgSrc = "";
+                                Reactie r = Model.Reacties.OrderBy(rr => rr.Datum).ToList<Reactie>()[i];
+                                @*Get image*@
+                            string img = null;
+                            ApplicationUser reactionUser = new ApplicationUser();
+                            foreach (ApplicationUser u in ViewBag.AllUsers)
+                            {
+                                if (u.Id.Equals(r.UserId))
+                                {
+                                    reactionUser = u;
+                                    img = u.Image;
+                                }
+                            }
+                            if (img != null)
+                            {
+                                imgSrc = img;
+                            }
+                            if (reactionUser != null)
+                            {
+                                <li class="commentHolder" id="@r.ReactieId">
+                                    @if (imgSrc.Equals(""))
+                                    {
+                                        <div class="row">
+                                            <div class="col-xs-2 col-md-1">
+                                                <img class="img-responsive" src="~/Content/Images/noImageAvailable.png">
+                                            </div>
+                                            <div class="col-xs-7 col-md-9">
+                                                <p>
+                                                    <b>@reactionUser.Firstname @reactionUser.Lastname</b>
+                                                </p>
+                                                <p class="reaction-text">@r.Tekst</p>
+                                            </div>
+                                            <div class="col-xs-3 col-md-2">
+                                                <p class="text-right"><span class="timeago">@String.Format("{0:dd MMMM yyyy}", r.Datum)</span></p>
+                                            </div>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="row">
+                                            <div class="col-xs-2 col-md-1">
+                                                <img class="img-responsive" src="@imgSrc">
+                                            </div>
+                                            <div class="col-xs-7 col-md-9">
+                                                <p>
+                                                    <b>@reactionUser.Firstname @reactionUser.Lastname</b>
+                                                </p>
+                                                <p class="reaction-text">@r.Tekst</p>
+                                            </div>
+                                            <div class="col-xs-3 col-md-2">
+                                                <p class="text-right"><span class="timeago">@String.Format("{0:dd MMMM yyyy}", r.Datum)</span></p>
+                                            </div>
+                                        </div>
+                                    }
+                                    <div class="row">
+                                        <div class="col-xs-8 col-xs-offset-2 col-md-9 col-md-offset-1">
+                                            <a class="react">Beantwoorden</a>
+                                            <span class="answerReactionDot"> - </span>
+                                            <a class="show-sub">Subreacties weergeven</a>
+                                        </div>
+                                        @if (HttpContext.Current.User.Identity.GetUserId() != null)
+                                        {
+                                            bool exist = false;
+                                            foreach (ReactieLike l in r.Likes)
+                                            {
+                                                if (l.UserId.Equals(HttpContext.Current.User.Identity.GetUserId()))
+                                                {
+                                                    exist = true;
+                                                }
+                                            }
+                                            if (exist)
+                                            {
+                                                <p class="draagvlak-reacties-selected col-xs-2 col-md-2 text-right">@r.Draagvlak <span class="glyphicon glyphicon-heart"></span></p>
+                                            }
+                                            else
+                                            {
+                                                <p class="draagvlak-reacties col-xs-2 col-md-2 text-right">@r.Draagvlak <span class="glyphicon glyphicon-heart"></span></p>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <p class="draagvlak-reacties col-xs-2 col-md-2 text-right">@r.Draagvlak <span class="glyphicon glyphicon-heart"></span></p>
+                                        }
+                                    </div>
+                                </li>
+
+                                <li class="subreactions">
+                                    @*Subreacties weergeven*@
+                                    <ul>
+                                        @foreach (Reactie subr in r.SubReacties.OrderBy(rr => rr.Datum))
+                                        {
+                                            var imgSrcSub = "";
+
+                                            @*Get image*@
+                                        string imgSub = null;
+                                        ApplicationUser reactionUserSub = new ApplicationUser();
+                                        foreach (ApplicationUser u in ViewBag.AllUsers)
+                                        {
+                                            if (u.Id.Equals(subr.UserId))
+                                            {
+                                                reactionUserSub = u;
+                                                imgSub = u.Image;
+                                            }
+                                        }
+                                        if (imgSub != null)
+                                        {
+
+                                            imgSrcSub = imgSub;
+                                        }
+                                        if (reactionUserSub != null)
+                                        {
+                                            <li class="commentHolder-sub">
+                                                @if (imgSrcSub.Equals(""))
+                                                {
+                                                    <div class="row">
+                                                        <div class="col-xs-2 col-md-1">
+                                                            <img class="img-responsive" src="~/Content/Images/noImageAvailable.png">
+                                                        </div>
+                                                        <div class="col-xs-7 col-md-9">
+                                                            <p>
+                                                                <b>@reactionUserSub.Firstname @reactionUserSub.Lastname</b>
+                                                            </p>
+                                                            <p class="reaction-text">@subr.Tekst</p>
+                                                        </div>
+                                                        <div class="col-xs-3 col-md-2">
+                                                            <p class="text-right"><span class="timeago">@String.Format("{0:dd MMMM yyyy}", r.Datum)</span></p>
+                                                        </div>
+                                                    </div>
+                                                }
+                                                else
+                                                {
+                                                    <div class="row">
+                                                        <div class="col-xs-2 col-md-1">
+                                                            <img class="img-responsive" src="@imgSrcSub">
+                                                        </div>
+                                                        <div class="col-xs-7 col-md-9">
+                                                            <p>
+                                                                <b>@reactionUserSub.Firstname @reactionUserSub.Lastname</b>
+                                                            </p>
+                                                            <p class="reaction-text">@subr.Tekst</p>
+                                                        </div>
+                                                        <div class="col-xs-3 col-md-2">
+                                                            <p class="text-right"><span class="timeago">@String.Format("{0:dd MMMM yyyy}", r.Datum)</span></p>
+                                                        </div>
+                                                    </div>
+                                                }
+                                            </li>
+                                            }
+                                        }
+                                        @if (HttpContext.Current.User.Identity.GetUserId() != null)
+                                        {
+                                            <li class="subreactionsComment">
+                                                <div class="publishComment-sub col-xs-10 col-xs-offset-2 col-md-11 col-md-offset-1">
+                                                    <textarea maxlength="300" id="commentText-sub" class="commentTextArea-sub col-xs-12" placeholder="Schrijf een antwoord..."></textarea>
+                                                    <p class="col-xs-6 col-md-2" id="remainingChars-sub">300</p>
+                                                    <input type="button" value="Reageer" class="btnComment-sub col-xs-6 col-md-2 pull-right text-right" />
+                                                </div>
+                                            </li>
+                                        }
+                                    </ul>
+                                </li>
+                                }
+                            }
+                        </ul>
+
+                        @* SHOW EXTRA*@
+                        @if (Model.Reacties.ToList<Reactie>().Count > showFirst)
+                        {
+                            <p id="show-extra" class="col-sm-12 text-center" data-toggle="collapse" data-target="#extra-reactions">Meer reacties weergeven</p>
+                        }
+                        <ul id="extra-reactions" class="col-sm-12 collapse">
+
+                            @for (var i = showFirst; i < Model.Reacties.ToList<Reactie>().Count; i++)
+                            {
+                                var imgSrc = "";
+                                Reactie r = Model.Reacties.OrderByDescending(rr => rr.Datum).ToList<Reactie>()[i];
+                                @*Get image*@
+                            string img = null;
+                            ApplicationUser reactionUser = new ApplicationUser();
+                            foreach (ApplicationUser u in ViewBag.AllUsers)
+                            {
+                                if (u.Id.Equals(r.UserId))
+                                {
+                                    reactionUser = u;
+                                    img = u.Image;
+                                }
+                            }
+                            if (img != null)
+                            {
+                                imgSrc = img;
+                            }
+                            if (reactionUser != null)
+                            {
+                                <li class="commentHolder" id="@r.ReactieId">
+                                    @if (imgSrc.Equals(""))
+                                    {
+                                        <div class="row">
+                                            <div class="col-sm-1">
+                                                <img class="img-responsive" src="~/Content/Images/noImageAvailable.png">
+                                            </div>
+                                            <div class="col-sm-9">
+                                                <p>
+                                                    <b>@reactionUser.Firstname @reactionUser.Lastname</b>
+                                                </p>
+                                                <p class="reaction-text">@r.Tekst</p>
+                                            </div>
+                                            <div class="col-sm-2">
+                                                <p class="text-right"><span class="timeago">@String.Format("{0:dd MMMM yyyy}", r.Datum)</span></p>
+                                            </div>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="row">
+                                            <div class="col-sm-1">
+                                                <img class="img-responsive" src="@imgSrc">
+                                            </div>
+                                            <div class="col-sm-9">
+                                                <p>
+                                                    <b>@reactionUser.Firstname @reactionUser.Lastname</b>
+                                                </p>
+                                                <p class="reaction-text">@r.Tekst</p>
+                                            </div>
+                                            <div class="col-sm-2">
+                                                <p class="text-right"><span class="timeago">@String.Format("{0:dd MMMM yyyy}", r.Datum)</span></p>
+                                            </div>
+                                        </div>
+                                    }
+                                    <div class="row">
+                                        <div class="col-sm-10 col-sm-offset-1">
+                                            <a class="react">Beantwoorden</a>
+                                            <span class="answerReactionDot"> - </span>
+                                            <a class="show-sub">Subreacties weergeven</a>
+                                        </div>
+                                        @if (HttpContext.Current.User.Identity.GetUserId() != null)
+                                        {
+                                            bool exist = false;
+                                            foreach (ReactieLike l in r.Likes)
+                                            {
+                                                if (l.UserId.Equals(HttpContext.Current.User.Identity.GetUserId()))
+                                                {
+                                                    exist = true;
+                                                }
+
+                                            }
+                                            if (exist)
+                                            {
+                                                <p class="draagvlak-reacties-selected pull-right col-sm-1 text-right">@r.Draagvlak <span class="glyphicon glyphicon-heart"></span></p>
+                                            }
+                                            else
+                                            {
+                                                <p class="draagvlak-reacties pull-right col-sm-1 text-right">@r.Draagvlak <span class="glyphicon glyphicon-heart"></span></p>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <p class="draagvlak-reacties pull-right col-sm-1 text-right">@r.Draagvlak <span class="glyphicon glyphicon-heart"></span></p>
+                                        }
+                                    </div>
+                                </li>
+                                <li class="subreactions">
+                                    @*Subreacties weergeven*@
+                                    <ul>
+                                        @foreach (Reactie subr in r.SubReacties.OrderByDescending(rr => rr.Datum))
+                                        {
+                                            var imgSrcSub = "";
+                                            @*Get image*@
+                                        string imgSub = null;
+                                        ApplicationUser reactionUserSub = new ApplicationUser();
+                                        foreach (ApplicationUser u in ViewBag.AllUsers)
+                                        {
+                                            if (u.Id.Equals(subr.UserId))
+                                            {
+                                                reactionUserSub = u;
+                                                imgSub = u.Image;
+                                            }
+                                        }
+                                        if (imgSub != null)
+                                        {
+                                            imgSrcSub = imgSub;
+                                        }
+                                        if (reactionUserSub != null)
+                                        {
+                                            <li class="commentHolder-sub">
+                                                @if (imgSrcSub.Equals(""))
+                                                {
+                                                    <div class="col-sm-12">
+                                                        <img class="img-responsive col-sm-2" src="~/Content/Images/noImageAvailable.png">
+                                                        <p class="col-sm-4">
+                                                            <b>@reactionUserSub.Firstname @reactionUserSub.Lastname</b>
+                                                        </p>
+                                                        <p class="col-sm-6 text-right"><span class="timeago">@String.Format("{0:dd MMMM yyyy}", r.Datum)</span></p>
+                                                    </div>
+                                                    <p class="col-sm-10 col-sm-offset-1 reaction-text">@subr.Tekst</p>
+                                                }
+                                                else
+                                                {
+                                                    <div class="col-sm-12">
+                                                        <img class="img-responsive col-sm-2" src="@imgSrcSub">
+                                                        <p class="col-sm-4">
+                                                            <b>@reactionUserSub.Firstname @reactionUserSub.Lastname</b>
+                                                        </p>
+                                                        <p class="col-sm-6 text-right"><span class="timeago">@String.Format("{0:dd MMMM yyyy}", r.Datum)</span></p>
+                                                    </div>
+                                                    <p class="col-sm-10 col-sm-offset-1 reaction-text">@subr.Tekst</p>
+                                                }
+
+                                            </li>
+                                            }
+                                        }
+                                        <li class="subreactionsComment">
+                                            @*Subreactie toevoegen*@
+                                            @if (HttpContext.Current.User.Identity.GetUserId() != null)
+                                            {
+                                                <div class="publishComment-sub col-sm-8 col-sm-offset-2">
+                                                    <div class="row">
+                                                        <div class="col-xs-12">
+                                                            <textarea maxlength="300" id="commentText-sub" class="commentTextArea-sub" placeholder="Schrijf een antwoord..."></textarea>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-xs-6 col-md-2">
+                                                            <p id="remainingChars-sub">300</p>
+                                                        </div>
+                                                        <div class="col-xs-6 col-md-2 pull-right text-right">
+                                                            <input type="button" value="Reageer" class="btn btn-primary" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            }
+                                            <a class="noshow-sub col-sm-12 text-left">Subreacties verbergen</a>
+                                        </li>
+                                    </ul>
+                                </li>
+                                }
+                            }
+                        </ul>
+
+                        @if (HttpContext.Current.User.Identity.GetUserId() != null)
+                        {
+                            <div class="publishComment col-xs-12">
+                                <div class="row">
+                                    <div class="col-xs-12">
+                                        <textarea maxlength="1000" id="commentText" class="commentTextArea" placeholder="Schrijf een reactie..."></textarea>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-6 col-md-2">
+                                        <p id="remainingChars">1000</p>
+                                    </div>
+                                    <div class="col-xs-6 col-md-2 pull-right text-right">
+                                        <button type="submit" id="btnComment" class="btn btn-primary">Reageer</button>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="publishComment col-sm-12 text-center">
+                                <p class="text-danger text-center">
+                                    U moet ingelogd zijn om te reageren op een voorstel.
+                                    @Html.ActionLink("Klik hier om in te loggen", "Login", "Account", routeValues: null, htmlAttributes: new { id = "loginLink" })
+
+                                </p>
+                            </div>
+                        }
+
+                    </div>
+                </article>
+            </div>
+        </article>
+    </section>
+</body>
+
+
+@section scripts
+{
+    <script src="https://use.fontawesome.com/e9fbcdb95d.js"></script>
+    <script type="text/javascript" src="~/Scripts/jquery-2.2.3.js"></script>
+    <script type="text/javascript" src="~/Scripts/likeProposal.js"></script>
+    <script type="text/javascript" src="~/Scripts/reactions.js"></script>
+    <script type="text/javascript" src="https://platform.twitter.com/widgets.js"></script>
+    <script type="text/javascript" src="~/Scripts/d3.v3.min.js"></script>
+    <script type="text/javascript" src="~/Scripts/ParticipationDetailsDiagram.js"></script>
+    <script type="text/javascript" src="~/Scripts/participation-details.js"></script>
+}

@@ -1,0 +1,253 @@
+﻿@using BEP.BL.Models.Begrotingen
+@using BEP.BL.Models.ParticipatieProjecten
+@model BEP.BL.Models.ParticipatieProjecten.ParticipatieProject
+
+@{
+  ViewBag.Title = "CreateProject";
+  Layout = "~/Views/Shared/_Layout.cshtml";
+  var i = 0;
+  string currentA = "";
+  string currentB = "";
+}
+
+@section head
+{
+    <link rel="stylesheet" href="~/Content/manage-makeparticipationproject.css" />
+}
+
+<div class="container">
+    <div id="participationproject" class="row group">
+        <div class="col-xs-12">
+            <h1>Nieuw participatieproject voor @Model.Begroting.Gemeente.Naam</h1>
+            <hr />
+        </div>
+
+        @using (Html.BeginForm("Create", "Manage", FormMethod.Post, new { enctype = "multipart/form-data" }))
+        {
+        @Html.AntiForgeryToken()
+
+        <div class="col-xs-12">
+            <div class="hidden" id="selected-year">@ViewBag.SelectedYear</div>
+            <div class="form-horizontal">
+                <p class="subtitle-gray">Instellen van de algemene informatie.</p>
+
+                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                <div class="form-group">
+                    @Html.Label("Jaartal", htmlAttributes: new { @class = "control-label col-md-2" })
+                    <div class="col-md-2">
+                        @Html.DropDownList("Jaartal", new SelectList(ViewBag.Years), new { @id = "budget-year", @class = "form-control" })                        @Html.ValidationMessageFor(model => model.Type, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(model => model.Type, htmlAttributes: new { @class = "control-label col-md-2" })
+                    <div class="col-md-2">
+                        @Html.EnumDropDownListFor(model => model.Type, htmlAttributes: new { @class = "form-control" })
+                        @Html.ValidationMessageFor(model => model.Type, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.Titel, htmlAttributes: new { @class = "control-label col-md-2" })
+                    <div class="col-md-10">
+                        @Html.EditorFor(model => model.Titel, new { htmlAttributes = new { @class = "form-control" } })
+                        @Html.ValidationMessageFor(model => model.Titel, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.Informatie, htmlAttributes: new { @class = "control-label col-md-2" })
+                    <div class="col-md-10">
+                        @Html.EditorFor(model => model.Informatie, new { htmlAttributes = new { @class = "form-control" } })
+                        @Html.ValidationMessageFor(model => model.Informatie, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.Startmoment, htmlAttributes: new { @class = "control-label col-md-2" })
+                    <div class="col-md-10">
+                        @Html.EditorFor(model => model.Startmoment, new { htmlAttributes = new { @class = "form-control" } })
+                        @Html.ValidationMessageFor(model => model.Startmoment, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.Eindmoment, htmlAttributes: new { @class = "control-label col-md-2" })
+                    <div class="col-md-10">
+                        @Html.EditorFor(model => model.Eindmoment, new { htmlAttributes = new { @class = "form-control" } })
+                        @Html.ValidationMessageFor(model => model.Eindmoment, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.Bedrag, htmlAttributes: new { @class = "control-label col-md-2" })
+                    <div class="col-md-10">
+                        @Html.EditorFor(model => model.Bedrag, new { htmlAttributes = new { @class = "form-control" } })
+                        @Html.ValidationMessageFor(model => model.Bedrag, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <hr />
+
+                <p class="subtitle-gray">Instellen van categorie specifieke informatie.</p>
+
+                <div class="row">
+                    <div class="col-xs-3">
+                        <p>
+                            <strong>Naam categorie</strong>
+                        </p>
+                    </div>
+                    <div class="col-xs-3">
+                        <p>
+                            <strong>Minimumbedrag</strong>
+                        </p>
+                    </div>
+                    <div class="col-xs-3">
+                        <p>
+                            <strong>Maximumbedrag</strong>
+                        </p>
+                    </div>
+                    <div class="col-xs-3">
+                        <p>
+                            <strong>Aanpasbaarheid</strong>
+                        </p>
+                    </div>
+                </div>
+
+                @foreach (StartBudget budget in Model.StartBudgetten)
+                {
+                    if (budget.CategorieInformatie.Categorie.CategorieNiveau.Equals(CategorieNiveau.A))
+                    {
+                        currentA = budget.CategorieInformatie.CategorieInformatieId.ToString();
+                    <div class="level-a-cat" id="@budget.CategorieInformatie.CategorieInformatieId">
+                        <div class="row form-group">
+                            <div class="col-xs-2"><b>@budget.CategorieInformatie.Categorie.Naam</b></div>
+                            <a class="arrow-link pull-left">
+                                <span class="glyphicon glyphicon-arrow-down arrow-a"></span>
+                            </a>
+                            @if (Model.StartBudgetten.ToList<StartBudget>()[i].MinimumBedrag <= Model.StartBudgetten.ToList<StartBudget>()[i].MaximumBedrag)
+                            {
+                            <div class="col-xs-3">
+                                @Html.EditorFor(m => m.StartBudgetten.ToList<StartBudget>()[i].MinimumBedrag, new { htmlAttributes = new { @class = "form-control" } })
+                                @Html.ValidationMessageFor(m => m.StartBudgetten.ToList<StartBudget>()[i].MinimumBedrag, "", new { @class = "text-danger" })
+                            </div>
+                            <div class="col-xs-3">
+                                @Html.EditorFor(m => m.StartBudgetten.ToList<StartBudget>()[i].MaximumBedrag, new { htmlAttributes = new { @class = "form-control" } })
+                                @Html.ValidationMessageFor(m => m.StartBudgetten.ToList<StartBudget>()[i].MaximumBedrag, "", new { @class = "text-danger" })
+                            </div>
+                            }
+                            else
+                            {
+                            <div class="col-xs-3">
+                                @Html.EditorFor(m => m.StartBudgetten.ToList<StartBudget>()[i].MinimumBedrag, new { htmlAttributes = new { @class = "form-control text-danger" } })
+                                @Html.ValidationMessageFor(m => m.StartBudgetten.ToList<StartBudget>()[i].MinimumBedrag, "Het minimumbedrag mag niet groter zijn dan het maximumbedrag.", new { @class = "text-danger" })
+                            </div>
+                            <div class="col-xs-3">
+                                @Html.EditorFor(m => m.StartBudgetten.ToList<StartBudget>()[i].MaximumBedrag, new { htmlAttributes = new { @class = "form-control text-danger" } })
+                                @Html.ValidationMessageFor(m => m.StartBudgetten.ToList<StartBudget>()[i].MaximumBedrag, "Het maximumbedrag mag niet kleiner zijn dan het minimumbedrag.", new { @class = "text-danger" })
+                            </div>
+                            }
+                            <div class="col-xs-3">
+                                @Html.EnumDropDownListFor(m => m.StartBudgetten.ToList<StartBudget>()[i].Aanpasbaarheid, htmlAttributes: new { @class = "form-control modifiable modifiable-a" })
+                                @Html.ValidationMessageFor(m => m.StartBudgetten.ToList<StartBudget>()[i].Aanpasbaarheid, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+                    </div>
+                    }
+                    else if (budget.CategorieInformatie.Categorie.CategorieNiveau.Equals(CategorieNiveau.B))
+                    {
+                        currentB = budget.CategorieInformatie.CategorieInformatieId.ToString();
+
+                    <div class="level-b-cat" id="@budget.CategorieInformatie.CategorieInformatieId">
+                        <div class="hidden" id="@budget.CategorieInformatie.CategorieInformatieId-id-a">@currentA</div>
+                        <div class="row form-group">
+
+                            <div class="col-xs-2">@budget.CategorieInformatie.Categorie.Naam</div>
+                            <a class="arrow-link pull-left">
+                                <span class="glyphicon glyphicon-arrow-down arrow-b"></span>
+                            </a>
+                            @if (Model.StartBudgetten.ToList<StartBudget>()[i].MinimumBedrag <= Model.StartBudgetten.ToList<StartBudget>()[i].MaximumBedrag)
+                            {
+                            <div class="col-xs-3">
+                                @Html.EditorFor(m => m.StartBudgetten.ToList<StartBudget>()[i].MinimumBedrag, new { htmlAttributes = new { @class = "form-control" } })
+                                @Html.ValidationMessageFor(m => m.StartBudgetten.ToList<StartBudget>()[i].MinimumBedrag, "", new { @class = "text-danger" })
+                            </div>
+                            <div class="col-xs-3">
+                                @Html.EditorFor(m => m.StartBudgetten.ToList<StartBudget>()[i].MaximumBedrag, new { htmlAttributes = new { @class = "form-control" } })
+                                @Html.ValidationMessageFor(m => m.StartBudgetten.ToList<StartBudget>()[i].MaximumBedrag, "", new { @class = "text-danger" })
+                            </div>
+                            }
+                            else
+                            {
+                            <div class="col-xs-3">
+                                @Html.EditorFor(m => m.StartBudgetten.ToList<StartBudget>()[i].MinimumBedrag, new { htmlAttributes = new { @class = "form-control text-danger" } })
+                                @Html.ValidationMessageFor(m => m.StartBudgetten.ToList<StartBudget>()[i].MinimumBedrag, "Het minimumbedrag mag niet groter zijn dan het maximumbedrag.", new { @class = "text-danger" })
+                            </div>
+                            <div class="col-xs-3">
+                                @Html.EditorFor(m => m.StartBudgetten.ToList<StartBudget>()[i].MaximumBedrag, new { htmlAttributes = new { @class = "form-control text-danger" } })
+                                @Html.ValidationMessageFor(m => m.StartBudgetten.ToList<StartBudget>()[i].MaximumBedrag, "Het maximumbedrag mag niet kleiner zijn dan het minimumbedrag.", new { @class = "text-danger" })
+                            </div>
+                            }
+                            <div class="col-xs-3">
+                                @Html.EnumDropDownListFor(m => m.StartBudgetten.ToList<StartBudget>()[i].Aanpasbaarheid, htmlAttributes: new { @class = "form-control modifiable modifiable-b" })
+                                @Html.ValidationMessageFor(m => m.StartBudgetten.ToList<StartBudget>()[i].Aanpasbaarheid, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+                    </div>
+                    }
+                    else if (budget.CategorieInformatie.Categorie.CategorieNiveau.Equals(CategorieNiveau.C))
+                    {
+                    <div class="level-c-cat" id="@budget.CategorieInformatie.CategorieInformatieId">
+                        <div class="hidden" id="@budget.CategorieInformatie.CategorieInformatieId-id-a">@currentA</div>
+                        <div class="hidden" id="@budget.CategorieInformatie.CategorieInformatieId-id-b">@currentB</div>
+
+                        <div class="row form-group">
+
+                            <div class="col-xs-3 level-c">@budget.CategorieInformatie.Categorie.Naam</div>
+                            @if (Model.StartBudgetten.ToList<StartBudget>()[i].MinimumBedrag <= Model.StartBudgetten.ToList<StartBudget>()[i].MaximumBedrag)
+                            {
+                            <div class="col-xs-3">
+                                @Html.EditorFor(m => m.StartBudgetten.ToList<StartBudget>()[i].MinimumBedrag, new { htmlAttributes = new { @class = "form-control" } })
+                                @Html.ValidationMessageFor(m => m.StartBudgetten.ToList<StartBudget>()[i].MinimumBedrag, "", new { @class = "text-danger" })
+                            </div>
+                            <div class="col-xs-3">
+                                @Html.EditorFor(m => m.StartBudgetten.ToList<StartBudget>()[i].MaximumBedrag, new { htmlAttributes = new { @class = "form-control" } })
+                                @Html.ValidationMessageFor(m => m.StartBudgetten.ToList<StartBudget>()[i].MaximumBedrag, "", new { @class = "text-danger" })
+                            </div>
+                            }
+                            else
+                            {
+                            <div class="col-xs-3">
+                                @Html.EditorFor(m => m.StartBudgetten.ToList<StartBudget>()[i].MinimumBedrag, new { htmlAttributes = new { @class = "form-control text-danger" } })
+                                @Html.ValidationMessageFor(m => m.StartBudgetten.ToList<StartBudget>()[i].MinimumBedrag, "Het minimumbedrag mag niet groter zijn dan het maximumbedrag.", new { @class = "text-danger" })
+                            </div>
+                            <div class="col-xs-3">
+                                @Html.EditorFor(m => m.StartBudgetten.ToList<StartBudget>()[i].MaximumBedrag, new { htmlAttributes = new { @class = "form-control text-danger" } })
+                                @Html.ValidationMessageFor(m => m.StartBudgetten.ToList<StartBudget>()[i].MaximumBedrag, "Het maximumbedrag mag niet kleiner zijn dan het minimumbedrag.", new { @class = "text-danger" })
+                            </div>
+                            }
+                            <div class="col-xs-3">
+                                @Html.EnumDropDownListFor(m => m.StartBudgetten.ToList<StartBudget>()[i].Aanpasbaarheid, htmlAttributes: new { @class = "form-control modifiable modifiable-c" })
+                                @Html.ValidationMessageFor(m => m.StartBudgetten.ToList<StartBudget>()[i].Aanpasbaarheid, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+                    </div>
+                    }
+                    i++;
+                }
+
+                <div class="form-group">
+                    <div class="col-md-12">
+                        <input type="submit" value="Project aanmaken" class="btn btn-primary" />
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    <script type="text/javascript" async src="~/Scripts/create-project.js"></script>
+}

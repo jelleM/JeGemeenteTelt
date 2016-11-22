@@ -1,0 +1,74 @@
+﻿@model BEP.BL.Models.ExternalLoginListViewModel
+@using Microsoft.AspNet.Identity
+@using Microsoft.Owin.Security
+@if (Request.IsAuthenticated)
+{
+    using (Html.BeginForm("LogOff", "Account", FormMethod.Post, new { id = "logoutForm", @class = "navbar-right" }))
+    {
+        @Html.AntiForgeryToken()
+
+        <ul class="nav navbar-nav navbar-right">
+            <li>
+                @*
+                    @Html.ActionLink("Welkom " + User.Identity.GetUserName() + "!", "Index", "Manage", routeValues: null, htmlAttributes: new { title = "Manage" })
+                *@
+                @Html.ActionLink("Mijn profiel", "Index", "Manage", routeValues: null, htmlAttributes: new { title = "Manage" })
+            </li>
+            @if (User.IsInRole("Superadmin") || User.IsInRole("Admin") || User.IsInRole("Moderator"))
+            {
+                <li class="dropdown hidden-xs">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Extra functies <span class="caret"></span></a>
+                    <ul class="dropdown-menu ">
+                        @if (User.IsInRole("Superadmin") || User.IsInRole("Admin") || User.IsInRole("Moderator"))
+                        {
+                            <li>@Html.ActionLink("Acountrollen toewijzen", "ManageUserRoles", "Manage")</li>
+                        }
+                        @if (User.IsInRole("Superadmin") || User.IsInRole("Admin"))
+                        {
+                            <li>@Html.ActionLink("Kerninfo wijzigen", "ChangeKerninfo", "Manage")</li>
+                        }
+
+                        @if (User.IsInRole("Superadmin"))
+                        {
+                            <li role="separator" class="divider"></li>
+                            <li>@Html.ActionLink("Belasting en begrotingen uploaden", "UploadFiles", "Manage")</li>
+                        }
+                        @if (User.IsInRole("Superadmin") || User.IsInRole("Admin") || User.IsInRole("Moderator"))
+                        {
+                            <li role="separator" class="divider"></li>
+                            <li>@Html.ActionLink("Begrotingsvoorstellen beheren", "IndexProposals", "Manage")</li>
+                        }
+                        @if (User.IsInRole("Superadmin") || User.IsInRole("Admin"))
+                        {
+                            <li>@Html.ActionLink("Participatieprojecten aanmaken", "CreateProject", "Manage")</li>
+                        }
+                        @if (User.IsInRole("Superadmin") || User.IsInRole("Admin"))
+                        {
+                            <li>@Html.ActionLink("CategorieInformaties beheren", "Categories", "Manage")</li>
+                        }
+                    </ul>
+                </li>
+            }
+            <li><a href="javascript:document.getElementById('logoutForm').submit()">Uitloggen</a></li>
+        </ul>
+    }
+}
+else
+{
+    <ul class="nav navbar-nav navbar-right">
+
+        @{
+            var loginProviders = Context.GetOwinContext().Authentication.GetExternalAuthenticationTypes();
+            if (loginProviders.Count() == 0)
+            {
+
+            }
+            else
+            {
+
+                <li>@Html.ActionLink("Log in", "Login", "Account", routeValues: null, htmlAttributes: new { id = "loginLink" })</li>
+            }
+        }
+
+    </ul>
+            }

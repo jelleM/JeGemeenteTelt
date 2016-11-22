@@ -1,0 +1,22 @@
+﻿#my-profile {
+    padding-bottom: 15px;
+}
+
+#my-profile img {
+    max-height: 100%;
+    max-width: 100%;
+    border:0.1rem solid gray;
+}
+
+#extra-functions {
+    padding-bottom: 15px;
+}
+
+#extra-functions .group-shadow {
+    padding-top: 0;
+}
+
+#extra-functions p {
+    padding-top: 5px;
+    padding-bottom: 3px;
+}

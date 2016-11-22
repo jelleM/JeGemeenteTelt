@@ -1,0 +1,113 @@
+﻿@model BEP.BL.Models.Begrotingen.CategorieInformatie
+
+    @{
+        ViewBag.Title = "Categories";
+        var imgSrc = "";
+        if (Model.Afbeelding != null)
+        {
+
+            imgSrc = Model.Afbeelding;
+        }
+    }
+
+    @section head {
+        <link rel="stylesheet" href="~/Content/manage-categories.css" />
+    }
+
+    <div class="container">
+        <div class="row group-shadow">
+            <div class="col-xs-12">
+                <div class="row">
+                    <div class="col-xs-12">
+                        <h1>Wijzig de categorie informatie van jouw gemeente</h1>
+                        <input type="hidden" value="@ViewBag.Zip" id="zip"/>
+                        <hr/>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-12">
+                        <p class="subtitle-gray">Kies een jaartal en een categorie om de informatie aan te passen.</p>
+                    </div>
+                    <div id="select-category" class="col-xs-12">
+                        <div class="row">
+                            <div class="col-sm-2">
+                                @Html.Label("Jaartal", htmlAttributes: new {@class = "control-label"})
+                            </div>
+                            <div class="col-sm-4">
+                                @Html.DropDownList("Jaartal", new SelectList(ViewBag.Years), new {@id = "budget-year", @class = "form-control"})
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-2">
+                                @Html.Label("Categorie", htmlAttributes: new {@class = "control-label"})
+                            </div>
+                            <div class="col-sm-4">
+                                <select id="dropdown" class="form-control">
+                                    @foreach (var Categorieinfo in ViewBag.CategorieInformaties)
+                                    {
+                                        <option value="@Categorieinfo.Categorie.CategorieId">@Categorieinfo.Categorie.CategorieId @Categorieinfo.Categorie.Naam</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <hr/>
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="hidden" id="selected-year">@ViewBag.SelectedYear</div>
+                        <div class="form-horizontal">
+                            <p id="title" class="subtitle-gray">Categorieinformatie <span class="blue">nr. @ViewBag.CategorieInformaties[0].Categorie.CategorieId - @ViewBag.CategorieInformaties[0].Categorie.Naam</span> wijzigen</p>
+                            <div class="form-group">
+                                <label class="control-label col-md-2">Categorieinformatie Id</label>
+                                <div class="col-md-10">
+                                    @Html.EditorFor(model => model.CategorieInformatieId, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly", @id = "edit_id" } })
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label col-md-2">Informatie</label>
+                                <div class="col-md-10">
+                                    @Html.EditorFor(model => model.Informatie, new { htmlAttributes = new { @class = "form-control", @id = "edit_info" } })
+                                    @Html.ValidationMessageFor(model => model.Informatie, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label col-md-2">Afbeelding</label>
+                                <div class="col-md-10">
+                                        <span class="btn btn-default btn-file">
+                                            <span class="glyphicon glyphicon-camera" aria-hidden="true"></span> Foto toevoegen <input type="file" name="file" accept="image/*" id="file-upload" />
+                                        </span>                     
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label col-md-2">Youtube link</label>
+                                <div class="col-md-10">
+                                    @Html.EditorFor(model => model.YoutubeLink, new { htmlAttributes = new { @class = "form-control", @id = "edit_yt" } })
+                                    @Html.ValidationMessageFor(model => model.YoutubeLink, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                @Html.LabelFor(model => model.Bedrag, htmlAttributes: new { @class = "control-label col-md-2" })
+                                <div class="col-md-10">
+                                    @Html.EditorFor(model => model.Bedrag, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly", @id = "edit_bedrag" } })
+                                    @Html.ValidationMessageFor(model => model.Bedrag, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="form-group">
+                            <input type="submit" id="save-button" value="Opslaan" class="btn btn-primary" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @section scripts {
+        <script type="text/javascript" src="~/Scripts/categories.js"></script>
+    }

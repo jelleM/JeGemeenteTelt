@@ -1,0 +1,11 @@
+﻿#select-category .row {
+    padding-bottom: 15px;
+}
+
+.form-horizontal .control-label {
+    text-align: left;
+}
+
+.blue {
+    color: #337ab7;
+}

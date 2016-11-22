@@ -1,0 +1,21 @@
+﻿@{
+  ViewBag.Title = "Inloggen mislukt";
+}
+
+@section head {
+    <link rel="stylesheet" href="~/Content/account.css"/>
+}
+
+<div class="container">
+    <div class="row group-shadow">
+        <div class="col-xs-12">
+            <h1 class="text-danger ">
+                <span class="glyphicon glyphicon-remove"></span>
+                Mislukte inlogpoging!
+            </h1>
+            <hr/>
+            @Html.ActionLink("Klik hier om opnieuw te proberen", "Login", "Account", routeValues: null, htmlAttributes: new { id = "loginLink", @class = "btn btn-default" })
+            <br/>
+        </div>
+    </div>
+</div>

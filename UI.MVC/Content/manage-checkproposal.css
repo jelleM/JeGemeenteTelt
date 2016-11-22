@@ -1,0 +1,28 @@
+﻿/* Participatie breadcrumbs */
+.breadcrumb {
+    margin: 15px 0 15px 0;
+}
+
+.group-shadow {
+    margin-top: 15px;
+}
+
+#check-proposal {
+    
+}
+
+.form-horizontal .control-label {
+    text-align: left;
+}
+
+#myModal .row {
+    padding-bottom: 15px;
+}
+
+#myModal textarea {
+    min-width: 100%;
+}
+
+#myModal .modal-footer {
+    text-align: left;
+}

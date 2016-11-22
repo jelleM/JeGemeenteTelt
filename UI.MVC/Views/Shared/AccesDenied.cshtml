@@ -1,0 +1,27 @@
+﻿@{
+    ViewBag.Title = "Toegang geweigerd";
+}
+
+<div class="container">
+    <div class="row group-shadow alert-danger">
+        <div class="col-xs-12">
+            <h1 class="text-danger text-center">
+                <span class="glyphicon glyphicon-alert"></span> Toegang geweigerd
+            </h1>
+            <hr />
+            @if (User.Identity.IsAuthenticated)
+            {
+            <p class="text-danger text-center">Uw toegang tot dit deel van de website werd geweigerd.</p>
+            <p class="text-danger text-center">Uw bent niet bevoegd om deze pagina te bekijken.</p>
+            <p class="text-danger text-center">Gelieve terug te keren naar @Html.ActionLink("de hoofdpagina", "Index", "City").</p>
+
+            }
+            else
+            {
+            <p class="text-danger text-center">Uw toegang tot dit deel van de website werd geweigerd.</p>
+            <p class="text-danger text-center">Om de deze pagina te kunnen bezoeken dient u ingelogd te zijn.</p>
+            <p class="text-danger text-center">Gelieve @Html.ActionLink("in te loggen", "Login", "Account", routeValues: null, htmlAttributes: new { id = "loginLink" }) om deze pagina te kunnen bekijken</p>
+            }
+        </div>
+    </div>
+</div>

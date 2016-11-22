@@ -1,0 +1,138 @@
+﻿#all-proposals {
+    padding-bottom: 15px;
+}
+
+.red {
+    color: red;
+}
+
+.green {
+    color: green;
+}
+
+.blue {
+    color: #337ab7;
+}
+
+.begrotingsvoorstel {
+    padding: 15px 15px 0 15px;
+}
+
+.begrotingsvoorstel-left {
+    background: linear-gradient(rgba(0, 0, 0, 0.6),rgba(0, 0, 0,0.6)), url("Images/thumbnail_default.jpg") center center no-repeat;
+    background-size: cover;    
+    outline: 1px solid #b2b2b2;
+    min-height: 200px;
+    color: white;
+}
+
+.budgetproposal-title {
+    font-size: 1.5em;
+    color: white;
+}
+
+.budgetproposal-subtitle {
+    font-size: 1.2em;
+    color: white;
+}
+
+.budgetproposal-link {
+    padding: 4em 0;
+    color: white;
+}
+
+.begrotingsvoorstel-right {
+    padding: 15px 0;
+    min-height: 200px;
+    outline: 1px solid #b2b2b2;
+}
+
+.draagvlak:hover, .draagvlak:active, .draagvlak:link {
+    color: orangered;
+}
+
+.draagvlak span:hover, .draagvlak span:active, .draagvlak span:link, .draagvlak span:visited {
+    color: red;
+}
+
+.draagvlak-selected {
+    display: block;
+    margin: 0 auto;
+    padding: 10px;
+    outline: 1px solid white;
+    width: 100px;
+}
+
+.draagvlak-selected span {
+    color: red;
+}
+
+.budgetproposal-amount {
+    line-height: 1.2em;
+    font-size: 2em;
+    font-weight: 700;
+}
+
+.budgetproposal-amountnegative {
+    line-height: 1em;
+    font-size: 1.2em;
+    color: red;
+}
+
+.budgetproposal-amountpositive {
+    line-height: 1em;
+    font-size: 1.2em;
+    color: green;
+}
+
+.budgetproposal-date {
+    padding-top: 8px;
+    font-weight: 700;
+}
+
+.reaction {
+    border: 0.2em solid gray;
+    border-radius: 0.5em;
+    margin-top: 1em;
+    padding-top: 0.5em;
+}
+
+.reactionheader {
+    margin-bottom: 2em;
+}
+
+#see-more-button-1,
+#see-more-button-2,
+#see-more-button-3 {
+    width: 200px;
+    display: block;
+    margin: 0 auto;
+    margin-top: 15px;
+}
+
+#see-more-button-1 p,
+#see-more-button-2 p,
+#see-more-button-3 p {
+    margin: 0;
+    display: inline-block;
+}
+
+#see-more-button-1 span,
+#see-more-button-2 span,
+#see-more-button-3 span {
+    display: inline-block;
+}
+
+/* Aanpassingen voor mobile */
+@media only screen and (max-width : 768px) {
+    .budgetproposal-amount {
+        font-size: 1.4em;
+        padding-top: 8px;
+        font-weight: 700;
+    }
+
+    .budgetproposal-date {
+        padding-top: 13px;
+        line-height: 1.2em;
+    }
+}

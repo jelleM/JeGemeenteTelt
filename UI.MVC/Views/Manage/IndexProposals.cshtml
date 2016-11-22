@@ -1,0 +1,533 @@
+﻿@using Microsoft.AspNet.Identity
+@using BEP.BL.Models.ParticipatieProjecten
+
+@{
+    ViewBag.Title = "Voorstellen";
+    var showFirstInProgress = 3;
+    var showFirstAccepted = 3;
+    var showFirstDeclined = 3;
+
+    if (ViewBag.inProgress.Count < showFirstInProgress)
+    {
+        showFirstInProgress = ViewBag.inProgress.Count;
+    }
+    if (ViewBag.accepted.Count < showFirstAccepted)
+    {
+        showFirstAccepted = ViewBag.accepted.Count;
+    }
+    if (ViewBag.declined.Count < showFirstDeclined)
+    {
+        showFirstDeclined = ViewBag.declined.Count;
+    }
+}
+
+@section head
+{
+    <link rel="stylesheet" href="~/Content/manage-indexproposals.css" />
+}
+
+<div class="container">
+    <div id="all-proposals" class="row group-shadow">
+        <div class="col-xs-12">
+            <div class="row">
+                <div class="col-xs-12">
+                    <h1>Begrotingsvoorstellen beheren.</h1>
+                    <p class="subtitle-gray">Een overzicht van alle voorstellen gemaakt door gebruikers.</p>
+                    <hr />
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-xs-12">
+                    <h2>
+                        <span class="glyphicon glyphicon-time blue"></span> In behandeling
+                    </h2>
+                </div>
+            </div>
+
+            @if (ViewBag.inProgress.Count != 0)
+            {
+                for (int i = 0; i < showFirstInProgress; i++)
+                {
+                    <div class="col-xs-12 begrotingsvoorstel">
+                        <div class="row row-eq-height">
+                            <div class="col-sm-4 begrotingsvoorstel-left text-center">
+                                <div class="budgetproposal-link">
+                                    <a href="@Url.Action("Checkproposal", "Manage", new {Id = ViewBag.inProgress[i].BegrotingsVoorstelId})">
+                                        @if (ViewBag.inProgress[i].ParticipatieProject != null)
+                                        {
+                                            <p class="budgetproposal-title">@ViewBag.inProgress[i].ParticipatieProject.Titel</p>
+                                        }
+                                        else
+                                        {
+                                            <p class="budgetproposal-title">Eigen voorstel</p>
+                                        }
+                                        <p class="budgetproposal-subtitle">@ViewBag.inProgress[i].Voorsteller</p>
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="col-sm-8 begrotingsvoorstel-right">
+                                <div class="col-xs-6">
+                                    @if (ViewBag.inProgress[i].ParticipatieProject != null)
+                                    {
+                                        if (ViewBag.inProgress[i].ParticipatieProject.Type.Equals(ProjectType.Besparing))
+                                        {
+                                            <p class="subtitle">Besparing:</p>
+                                            <p class="budgetproposal-amount">€ @((ViewBag.inProgress[i].ParticipatieProject.Begroting.Totaal).ToString("N"))</p>
+                                            <p class="budgetproposal-amountnegative">- € @((ViewBag.inProgress[i].ParticipatieProject.Bedrag + ViewBag.inProgress[i].TotaalBudgetwijziging).ToString("N"))</p>
+                                            <p class="subtitle">Doel:</p>
+                                            <p class="budgetproposal-amountnegative">- € @((0 - ViewBag.inProgress[i].ParticipatieProject.Bedrag).ToString("N"))</p>
+                                        }
+                                        else if (ViewBag.inProgress[i].ParticipatieProject.Type.Equals(ProjectType.Bestemming))
+                                        {
+                                            <p class="subtitle">Bestemming:</p>
+                                            <p class="budgetproposal-amount">€ @((ViewBag.inProgress[i].ParticipatieProject.Begroting.Totaal).ToString("N"))</p>
+                                            <p class="budgetproposal-amountpositive">+ € @((ViewBag.inProgress[i].ParticipatieProject.Bedrag - ViewBag.inProgress[i].TotaalBudgetwijziging).ToString("N"))</p>
+                                            <p class="subtitle">Doel:</p>
+                                            <p class="budgetproposal-amountpositive">+ € @ViewBag.inProgress[i].ParticipatieProject.Bedrag.ToString("N")</p>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <p class="subtitle">Herschikking:</p>
+                                        <p class="budgetproposal-amount">€ @(ViewBag.inProgress[i].Begroting.Totaal.ToString("N"))</p>
+                                        if (ViewBag.inProgress[i].TotaalBudgetwijziging >= 0)
+                                        {
+                                            <p class="budgetproposal-amountpositive">+ € @((ViewBag.inProgress[i].TotaalBudgetwijziging).ToString("N"))</p>
+                                        }
+                                        else if (ViewBag.inProgress[i].TotaalBudgetwijziging < 0)
+                                        {
+                                            <p class="budgetproposal-amountnegative">- € @((ViewBag.inProgress[i].ParticipatieProject.Bedrag.ToString("N")))</p>
+                                        }
+                                    }
+
+                                </div>
+                                <div class="col-xs-6">
+                                    <p class="subtitle">Datum:</p>
+                                    <p class="budgetproposal-date hidden-xs hidden-sm">@String.Format("{0:dd MMMM yyyy}", ViewBag.inProgress[i].Datum)</p>
+                                    <p class="budgetproposal-date hidden-md hidden-lg">@String.Format("{0:dd/MM/yyyy}", ViewBag.inProgress[i].Datum)</p>
+                                </div>
+                                <div class="col-xs-12">
+                                    <p class="subtitle">Beschrijving:</p>
+                                    <p>@ViewBag.inProgress[i].KorteBeschrijving</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+                <div id="extra-budgetproposals-inprogress" class="collapse">
+                    @for (var j = showFirstInProgress; j < ViewBag.inProgress.Count; j++)
+                {
+                        <div class="col-xs-12 begrotingsvoorstel">
+                            <div class="row row-eq-height">
+                                <div class="col-sm-4 begrotingsvoorstel-left text-center">
+                                    <div class="budgetproposal-link">
+                                        <a href="@Url.Action("Checkproposal", "Manage", new {Id = ViewBag.inProgress[j].BegrotingsVoorstelId})">
+                                            @if (ViewBag.inProgress[j].ParticipatieProject != null)
+                                            {
+                                                <p class="budgetproposal-title">@ViewBag.inProgress[j].ParticipatieProject.Titel</p>
+                                            }
+                                            else
+                                            {
+                                                <p class="budgetproposal-title">Eigen voorstel</p>
+                                            }
+                                            <p class="budgetproposal-subtitle">@ViewBag.inProgress[j].Voorsteller</p>
+                                        </a>
+                                    </div>
+                                </div>
+                                <div class="col-sm-8 begrotingsvoorstel-right">
+                                    <div class="col-xs-6">
+                                        @if (ViewBag.inProgress[j].ParticipatieProject != null)
+                                        {
+                                            if (ViewBag.inProgress[j].ParticipatieProject.Type.Equals(ProjectType.Besparing))
+                                            {
+                                                <p class="subtitle">Besparing:</p>
+                                                <p class="budgetproposal-amount">€ @((ViewBag.inProgress[j].ParticipatieProject.Begroting.Totaal).ToString("N"))</p>
+                                                <p class="budgetproposal-amountnegative">- € @((ViewBag.inProgress[j].ParticipatieProject.Bedrag + ViewBag.inProgress[j].TotaalBudgetwijziging).ToString("N"))</p>
+                                                <p class="subtitle">Doel:</p>
+                                                <p class="budgetproposal-amountnegative">- € @((0 - ViewBag.inProgress[j].ParticipatieProject.Bedrag).ToString("N"))</p>
+                                            }
+                                            else if (ViewBag.inProgress[j].ParticipatieProject.Type.Equals(ProjectType.Bestemming))
+                                            {
+                                                <p class="subtitle">Bestemming:</p>
+                                                <p class="budgetproposal-amount">€ @((ViewBag.inProgress[j].ParticipatieProject.Begroting.Totaal).ToString("N"))</p>
+                                                <p class="budgetproposal-amountpositive">+ € @((ViewBag.inProgress[j].ParticipatieProject.Bedrag - ViewBag.inProgress[j].TotaalBudgetwijziging).ToString("N"))</p>
+                                                <p class="subtitle">Doel:</p>
+                                                <p class="budgetproposal-amountpositive">+ € @ViewBag.inProgress[j].ParticipatieProject.Bedrag.ToString("N")</p>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <p class="subtitle">Herschikking:</p>
+                                            <p class="budgetproposal-amount">@(ViewBag.inProgress[j].Begroting.Totaal.ToString("N"))€</p>
+                                            if (ViewBag.inProgress[j].TotaalBudgetwijziging >= 0)
+                                            {
+                                                <p class="budgetproposal-amountpositive">+ € @((ViewBag.inProgress[j].TotaalBudgetwijziging).ToString("N"))</p>
+                                            }
+                                            else if (ViewBag.inProgress[j].TotaalBudgetwijziging < 0)
+                                            {
+                                                <p class="budgetproposal-amountnegative">- € @((ViewBag.inProgress[j].ParticipatieProject.Bedrag.ToString("N")))</p>
+                                            }
+                                        }
+
+                                    </div>
+                                    <div class="col-xs-6">
+                                        <p class="subtitle">Datum:</p>
+                                        <p class="budgetproposal-date hidden-xs hidden-sm">@String.Format("{0:dd MMMM yyyy}", ViewBag.inProgress[j].Datum)</p>
+                                        <p class="budgetproposal-date hidden-md hidden-lg">@String.Format("{0:dd/MM/yyyy}", ViewBag.inProgress[j].Datum)</p>
+                                    </div>
+                                    <div class="col-xs-12">
+                                        <p class="subtitle">Beschrijving:</p>
+                                        <p>@ViewBag.inProgress[j].KorteBeschrijving</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+                if (ViewBag.inProgress.Count > showFirstInProgress)
+                {
+                    <div class="col-xs-12">
+                        <div id="see-more-button-1" class="btn btn-default" data-toggle="collapse" data-target="#extra-budgetproposals-inprogress">
+                            <p>Laad meer voorstellen </p>
+                            <span id="see-more-1" class="glyphicon glyphicon-chevron-down"></span>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <p>Er zijn geen te behandelen voorstellen</p>
+            }
+
+            <div class="row">
+                <div class="col-xs-12">
+                    <h2>
+                        <span class="glyphicon glyphicon-ok green"></span> Goedgekeurd
+                    </h2>
+                </div>
+            </div>
+            @if (ViewBag.accepted.Count != 0)
+            {
+                for (int i = 0; i < showFirstAccepted; i++)
+                {
+                    <div class="col-xs-12 begrotingsvoorstel">
+                        <div class="row row-eq-height">
+                            <div class="col-sm-4 begrotingsvoorstel-left text-center">
+                                <div class="budgetproposal-link">
+                                    <a href="@Url.Action("Checkproposal", "Manage", new {Id = ViewBag.accepted[i].BegrotingsVoorstelId})">
+                                        @if (ViewBag.accepted[i].ParticipatieProject != null)
+                                        {
+                                            <p class="budgetproposal-title">@ViewBag.accepted[i].ParticipatieProject.Titel</p>
+                                        }
+                                        else
+                                        {
+                                            <p class="budgetproposal-title">Eigen voorstel</p>
+                                        }
+                                        <p class="budgetproposal-subtitle">@ViewBag.accepted[i].Voorsteller</p>
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="col-sm-8 begrotingsvoorstel-right">
+                                <div class="col-xs-6">
+                                    @if (ViewBag.accepted[i].ParticipatieProject != null)
+                                    {
+                                        if (ViewBag.accepted[i].ParticipatieProject.Type.Equals(ProjectType.Besparing))
+                                        {
+                                            <p class="subtitle">Besparing:</p>
+                                            <p class="budgetproposal-amount">€ @((ViewBag.accepted[i].ParticipatieProject.Begroting.Totaal).ToString("N"))</p>
+                                            <p class="budgetproposal-amountnegative">- € @((ViewBag.accepted[i].ParticipatieProject.Bedrag + ViewBag.accepted[i].TotaalBudgetwijziging).ToString("N"))</p>
+                                            <p class="subtitle">Doel:</p>
+                                            <p class="budgetproposal-amountnegative">- € @((0 - ViewBag.accepted[i].ParticipatieProject.Bedrag).ToString("N"))</p>
+                                        }
+                                        else if (ViewBag.accepted[i].ParticipatieProject.Type.Equals(ProjectType.Bestemming))
+                                        {
+                                            <p class="subtitle">Bestemming:</p>
+                                            <p class="budgetproposal-amount">€ @((ViewBag.accepted[i].ParticipatieProject.Begroting.Totaal).ToString("N"))</p>
+                                            <p class="budgetproposal-amountpositive">+ € @((ViewBag.accepted[i].ParticipatieProject.Bedrag - ViewBag.accepted[i].TotaalBudgetwijziging).ToString("N"))</p>
+                                            <p class="subtitle">Doel:</p>
+                                            <p class="budgetproposal-amountpositive">+ € @ViewBag.accepted[i].ParticipatieProject.Bedrag.ToString("N")</p>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <p class="subtitle">Herschikking:</p>
+                                        <p class="budgetproposal-amount">@(ViewBag.accepted[i].Begroting.Totaal.ToString("N"))€</p>
+                                        if (ViewBag.accepted[i].TotaalBudgetwijziging >= 0)
+                                        {
+                                            <p class="budgetproposal-amountpositive">+ € @((ViewBag.accepted[i].TotaalBudgetwijziging).ToString("N"))</p>
+                                        }
+                                        else if (ViewBag.accepted[i].TotaalBudgetwijziging < 0)
+                                        {
+                                            <p class="budgetproposal-amountnegative">- € @((ViewBag.accepted[i].ParticipatieProject.Bedrag.ToString("N")))</p>
+                                        }
+                                    }
+
+                                </div>
+                                <div class="col-xs-6">
+                                    <p class="subtitle">Datum:</p>
+                                    <p class="budgetproposal-date hidden-xs hidden-sm">@String.Format("{0:dd MMMM yyyy}", ViewBag.accepted[i].Datum)</p>
+                                    <p class="budgetproposal-date hidden-md hidden-lg">@String.Format("{0:dd/MM/yyyy}", ViewBag.accepted[i].Datum)</p>
+                                </div>
+                                <div class="col-xs-12">
+                                    <p class="subtitle">Beschrijving:</p>
+                                    <p>@ViewBag.accepted[i].KorteBeschrijving</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+                <div id="extra-budgetproposals-accepted" class="collapse">
+                    @for (var j = showFirstAccepted; j < ViewBag.accepted.Count; j++)
+                {
+                        <div class="col-xs-12 begrotingsvoorstel">
+                            <div class="row row-eq-height">
+                                <div class="col-sm-4 begrotingsvoorstel-left text-center">
+                                    <div class="budgetproposal-link">
+                                        <a href="@Url.Action("Checkproposal", "Manage", new {Id = ViewBag.accepted[j].BegrotingsVoorstelId})">
+                                            @if (ViewBag.accepted[j].ParticipatieProject != null)
+                                            {
+                                                <p class="budgetproposal-title">@ViewBag.accepted[j].ParticipatieProject.Titel</p>
+                                            }
+                                            else
+                                            {
+                                                <p class="budgetproposal-title">Eigen voorstel</p>
+                                            }
+                                            <p class="budgetproposal-subtitle">@ViewBag.accepted[j].Voorsteller</p>
+                                        </a>
+                                    </div>
+                                </div>
+                                <div class="col-sm-8 begrotingsvoorstel-right">
+                                    <div class="col-xs-6">
+                                        @if (ViewBag.accepted[j].ParticipatieProject != null)
+                                        {
+                                            if (ViewBag.accepted[j].ParticipatieProject.Type.Equals(ProjectType.Besparing))
+                                            {
+                                                <p class="subtitle">Besparing:</p>
+                                                <p class="budgetproposal-amount">€ @((ViewBag.accepted[j].ParticipatieProject.Begroting.Totaal).ToString("N"))</p>
+                                                <p class="budgetproposal-amountnegative">- € @((ViewBag.accepted[j].ParticipatieProject.Bedrag + ViewBag.accepted[j].TotaalBudgetwijziging).ToString("N"))</p>
+                                                <p class="subtitle">Doel:</p>
+                                                <p class="budgetproposal-amountnegative">- € @((0 - ViewBag.accepted[j].ParticipatieProject.Bedrag).ToString("N"))</p>
+                                            }
+                                            else if (ViewBag.accepted[j].ParticipatieProject.Type.Equals(ProjectType.Bestemming))
+                                            {
+                                                <p class="subtitle">Bestemming:</p>
+                                                <p class="budgetproposal-amount">€ @((ViewBag.accepted[j].ParticipatieProject.Begroting.Totaal).ToString("N"))</p>
+                                                <p class="budgetproposal-amountpositive">+ € @((ViewBag.accepted[j].ParticipatieProject.Bedrag - ViewBag.accepted[j].TotaalBudgetwijziging).ToString("N"))</p>
+                                                <p class="subtitle">Doel:</p>
+                                                <p class="budgetproposal-amountpositive">+ € @ViewBag.accepted[j].ParticipatieProject.Bedrag.ToString("N")</p>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <p class="subtitle">Herschikking:</p>
+                                            <p class="budgetproposal-amount">@(ViewBag.accepted[j].Begroting.Totaal.ToString("N"))€</p>
+                                            if (ViewBag.accepted[j].TotaalBudgetwijziging >= 0)
+                                            {
+                                                <p class="budgetproposal-amountpositive">+ € @((ViewBag.accepted[j].TotaalBudgetwijziging).ToString("N"))</p>
+                                            }
+                                            else if (ViewBag.accepted[j].TotaalBudgetwijziging < 0)
+                                            {
+                                                <p class="budgetproposal-amountnegative">- € @((ViewBag.accepted[j].ParticipatieProject.Bedrag.ToString("N")))</p>
+                                            }
+                                        }
+
+                                    </div>
+                                    <div class="col-xs-6">
+                                        <p class="subtitle">Datum:</p>
+                                        <p class="budgetproposal-date hidden-xs hidden-sm">@String.Format("{0:dd MMMM yyyy}", ViewBag.accepted[j].Datum)</p>
+                                        <p class="budgetproposal-date hidden-md hidden-lg">@String.Format("{0:dd/MM/yyyy}", ViewBag.accepted[j].Datum)</p>
+                                    </div>
+                                    <div class="col-xs-12">
+                                        <p class="subtitle">Beschrijving:</p>
+                                        <p>@ViewBag.accepted[j].KorteBeschrijving</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+                if (ViewBag.accepted.Count > showFirstAccepted)
+                {
+                    <div class="col-xs-12">
+                        <div id="see-more-button-2" class="btn btn-default" data-toggle="collapse" data-target="#extra-budgetproposals-accepted">
+                            <p>Laad meer voorstellen </p>
+                            <span id="see-more-2" class="glyphicon glyphicon-chevron-down"></span>
+                        </div>
+                    </div>
+                }
+
+            }
+            else
+            {
+                <p>Er zijn geen goedgekeurde voorstellen</p>
+            }
+
+            <div class="row">
+                <div class="col-xs-12">
+                    <h2>
+                        <span class="glyphicon glyphicon-remove red"></span> Afgekeurd
+                    </h2>
+                </div>
+            </div>
+            @if (ViewBag.declined.Count != 0)
+            {
+                for (int i = 0; i < showFirstDeclined; i++)
+                {
+                    <div class="col-xs-12 begrotingsvoorstel">
+                        <div class="row row-eq-height">
+                            <div class="col-sm-4 begrotingsvoorstel-left text-center">
+                                <div class="budgetproposal-link">
+                                    <a href="@Url.Action("Checkproposal", "Manage", new {Id = ViewBag.declined[i].BegrotingsVoorstelId})">
+                                        @if (ViewBag.declined[i].ParticipatieProject != null)
+                                        {
+                                            <p class="budgetproposal-title">@ViewBag.declined[i].ParticipatieProject.Titel</p>
+                                        }
+                                        else
+                                        {
+                                            <p class="budgetproposal-title">Eigen voorstel</p>
+                                        }
+                                        <p class="budgetproposal-subtitle">@ViewBag.declined[i].Voorsteller</p>
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="col-sm-8 begrotingsvoorstel-right">
+                                <div class="col-xs-6">
+                                    @if (ViewBag.declined[i].ParticipatieProject != null)
+                                    {
+                                        if (ViewBag.declined[i].ParticipatieProject.Type.Equals(ProjectType.Besparing))
+                                        {
+                                            <p class="subtitle">Besparing:</p>
+                                            <p class="budgetproposal-amount">€ @((ViewBag.declined[i].ParticipatieProject.Begroting.Totaal).ToString("N"))</p>
+                                            <p class="budgetproposal-amountnegative">- € @((ViewBag.declined[i].ParticipatieProject.Bedrag + ViewBag.declined[i].TotaalBudgetwijziging).ToString("N"))</p>
+                                            <p class="subtitle">Doel:</p>
+                                            <p class="budgetproposal-amountnegative">- € @((0 - ViewBag.declined[i].ParticipatieProject.Bedrag).ToString("N"))</p>
+                                        }
+                                        else if (ViewBag.declined[i].ParticipatieProject.Type.Equals(ProjectType.Bestemming))
+                                        {
+                                            <p class="subtitle">Bestemming:</p>
+                                            <p class="budgetproposal-amount">€ @((ViewBag.declined[i].ParticipatieProject.Begroting.Totaal).ToString("N"))</p>
+                                            <p class="budgetproposal-amountpositive">+ € @((ViewBag.declined[i].ParticipatieProject.Bedrag - ViewBag.declined[i].TotaalBudgetwijziging).ToString("N"))</p>
+                                            <p class="subtitle">Doel:</p>
+                                            <p class="budgetproposal-amountpositive">+ € @ViewBag.declined[i].ParticipatieProject.Bedrag.ToString("N")</p>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <p class="subtitle">Herschikking:</p>
+                                        <p class="budgetproposal-amount">@(ViewBag.declined[i].Begroting.Totaal.ToString("N"))€</p>
+                                        if (ViewBag.declined[i].TotaalBudgetwijziging >= 0)
+                                        {
+                                            <p class="budgetproposal-amountpositive">+ € @((ViewBag.declined[i].TotaalBudgetwijziging).ToString("N"))</p>
+                                        }
+                                        else if (ViewBag.declined[i].TotaalBudgetwijziging < 0)
+                                        {
+                                            <p class="budgetproposal-amountnegative">- € @((ViewBag.declined[i].ParticipatieProject.Bedrag.ToString("N")))</p>
+                                        }
+                                    }
+
+                                </div>
+                                <div class="col-xs-6">
+                                    <p class="subtitle">Datum:</p>
+                                    <p class="budgetproposal-date hidden-xs hidden-sm">@String.Format("{0:dd MMMM yyyy}", ViewBag.declined[i].Datum)</p>
+                                    <p class="budgetproposal-date hidden-md hidden-lg">@String.Format("{0:dd/MM/yyyy}", ViewBag.declined[i].Datum)</p>
+                                </div>
+                                <div class="col-xs-12">
+                                    <p class="subtitle">Beschrijving:</p>
+                                    <p>@ViewBag.declined[i].KorteBeschrijving</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+                <div id="extra-budgetproposals-declined" class="collapse">
+                    @for (var j = showFirstDeclined; j < ViewBag.declined.Count; j++)
+                {
+                        <div class="col-xs-12 begrotingsvoorstel">
+                            <div class="row row-eq-height">
+                                <div class="col-sm-4 begrotingsvoorstel-left text-center">
+                                    <div class="budgetproposal-link">
+                                        <a href="@Url.Action("Checkproposal", "Manage", new {Id = ViewBag.declined[j].BegrotingsVoorstelId})">
+                                            @if (ViewBag.declined[j].ParticipatieProject != null)
+                                            {
+                                                <p class="budgetproposal-title">@ViewBag.declined[j].ParticipatieProject.Titel</p>
+                                            }
+                                            else
+                                            {
+                                                <p class="budgetproposal-title">Eigen voorstel</p>
+                                            }
+                                            <p class="budgetproposal-subtitle">@ViewBag.declined[j].Voorsteller</p>
+                                        </a>
+                                    </div>
+                                </div>
+                                <div class="col-sm-8 begrotingsvoorstel-right">
+                                    <div class="col-xs-6">
+                                        @if (ViewBag.declined[j].ParticipatieProject != null)
+                                        {
+                                            if (ViewBag.declined[j].ParticipatieProject.Type.Equals(ProjectType.Besparing))
+                                            {
+                                                <p class="subtitle">Besparing:</p>
+                                                <p class="budgetproposal-amount">€ @((ViewBag.declined[j].ParticipatieProject.Begroting.Totaal).ToString("N"))</p>
+                                                <p class="budgetproposal-amountnegative">- € @((ViewBag.declined[j].ParticipatieProject.Bedrag + ViewBag.declined[j].TotaalBudgetwijziging).ToString("N"))</p>
+                                                <p class="subtitle">Doel:</p>
+                                                <p class="budgetproposal-amountnegative">- € @((0 - ViewBag.declined[j].ParticipatieProject.Bedrag).ToString("N"))</p>
+                                            }
+                                            else if (ViewBag.declined[j].ParticipatieProject.Type.Equals(ProjectType.Bestemming))
+                                            {
+                                                <p class="subtitle">Bestemming:</p>
+                                                <p class="budgetproposal-amount">€ @((ViewBag.declined[j].ParticipatieProject.Begroting.Totaal).ToString("N"))</p>
+                                                <p class="budgetproposal-amountpositive">+ € @((ViewBag.declined[j].ParticipatieProject.Bedrag - ViewBag.declined[j].TotaalBudgetwijziging).ToString("N"))</p>
+                                                <p class="subtitle">Doel:</p>
+                                                <p class="budgetproposal-amountpositive">+ € @ViewBag.declined[j].ParticipatieProject.Bedrag.ToString("N")</p>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <p class="subtitle">Herschikking:</p>
+                                            <p class="budgetproposal-amount">@(ViewBag.declined[j].Begroting.Totaal.ToString("N"))€</p>
+                                            if (ViewBag.declined[j].TotaalBudgetwijziging >= 0)
+                                            {
+                                                <p class="budgetproposal-amountpositive">+ € @((ViewBag.declined[j].TotaalBudgetwijziging).ToString("N"))</p>
+                                            }
+                                            else if (ViewBag.declined[j].TotaalBudgetwijziging < 0)
+                                            {
+                                                <p class="budgetproposal-amountnegative">- € @((ViewBag.declined[j].ParticipatieProject.Bedrag.ToString("N")))</p>
+                                            }
+                                        }
+
+                                    </div>
+                                    <div class="col-xs-6">
+                                        <p class="subtitle">Datum:</p>
+                                        <p class="budgetproposal-date hidden-xs hidden-sm">@String.Format("{0:dd MMMM yyyy}", ViewBag.declined[j].Datum)</p>
+                                        <p class="budgetproposal-date hidden-md hidden-lg">@String.Format("{0:dd/MM/yyyy}", ViewBag.declined[j].Datum)</p>
+                                    </div>
+                                    <div class="col-xs-12">
+                                        <p class="subtitle">Beschrijving:</p>
+                                        <p>@ViewBag.declined[j].KorteBeschrijving</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+                if (ViewBag.declined.Count > showFirstDeclined)
+                {
+                    <div class="col-xs-12">
+                        <div id="see-more-button-3" class="btn btn-default" data-toggle="collapse" data-target="#extra-budgetproposals-declined">
+                            <p>Laad meer voorstellen </p>
+                            <span id="see-more-3" class="glyphicon glyphicon-chevron-down"></span>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <p>Er zijn geen afgekeurde voorstellen</p>
+            }
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script type="text/javascript" src="~/Scripts/manage-indexproposals.js"></script>
+}
