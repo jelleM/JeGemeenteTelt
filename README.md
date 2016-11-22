@@ -1,3 +1,5 @@
-# Integratieproject1_BegrotingstransparantieEnParticipatie
-Integratieproject 1 - Bits Please! - Begrotingstransparantie en participatie
+# JeGemeenteTelt
+.NET MVC5 Web Application
+School project: Platform for managing city budgets.
+
 ![alt tag](./Domeinmodel.jpg)
